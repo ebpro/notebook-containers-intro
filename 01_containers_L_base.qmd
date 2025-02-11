@@ -12,18 +12,18 @@ provide_slides: false
 jupyter: zsh
 ---
 
+{{< include ./quarto-utils/_init_Docker.qmd >}}
+
 ## Informations techniques 
 
-::: {layout="[ 0.5, -0.05, 0.45 ]"}
-:::: {#first-column}
+:::: {layout="[ 0.5, -0.05, 0.45 ]"}
+::: {#first-column}
 {{< include ./quarto-utils/_tools_Git.qmd >}}
 :::
-:::: {#second-column}
+::: {#second-column}
 {{< include ./quarto-utils/_tools_Docker.qmd >}}
-::::
 :::
-
-{{< include ./quarto-utils/_init_Docker.qmd >}}
+::::
 
 ### Objectifs d'Apprentissage
 

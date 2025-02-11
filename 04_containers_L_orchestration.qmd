@@ -15,6 +15,19 @@ provide_slides: false
 jupyter: java-lts
 ---
 
+{{< include ./quarto-utils/_init_Docker_Java.qmd >}}
+
+## Informations techniques 
+
+:::: {layout="[ 0.5, -0.05, 0.45 ]"}
+::: {#first-column}
+{{< include ./quarto-utils/_tools_Git_Java.qmd >}}
+:::
+::: {#second-column}
+{{< include ./quarto-utils/_tools_Docker_Java.qmd >}}
+:::
+::::
+
 L'orchestration consiste à coordonner plusieurs conteneurs au sein d'une même application. Si [kubernetes](https://kubernetes.io/) de Google est l'outil de référence pour les déploiements complexes, [docker compose](https://docs.docker.com/compose/) offre une alternative plus simple pour les architectures modestes.
 
 Docker compose, disponible comme [plugin](https://docs.docker.com/compose/install/) de Docker, permet de décrire une architecture multi-conteneurs dans un fichier YAML (`docker-compose.yml`). Il gère les services, volumes et réseaux avec la même syntaxe que Docker, simplifiant ainsi le déploiement d'applications conteneurisées.

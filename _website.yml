@@ -1,0 +1,36 @@
+website:
+  title: "Emmanuel BRUNO"
+  open-graph: true
+  page-navigation: true
+  bread-crumbs: true
+  navbar:
+    background: primary
+    search: true
+    left:
+      - text: "Home"
+        file: index.qmd
+      - text: "I111"
+        file: I111.qmd
+      - text: "I211"
+        file: I211.qmd
+      - text: "PO43"
+        file: PO43.qmd
+      - text: "PM44"
+        file: PM44.qmd
+      # - I311.qmd
+  sidebar:    
+    style: "docked"
+    search: true    
+    contents:
+      - text: "Home"
+        file: index.qmd        
+      - text: "All notebooks"
+        file: notebooks.qmd
+      - section: "Enseignements"
+        contents:
+          - file: I111.qmd
+          - file: PO43.qmd
+          - file: PM44.qmd           
+          - file: I211.qmd
+#          - text: "I311"
+#            file: I311.qmd

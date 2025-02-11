@@ -1,3 +1,12 @@
-# Avant propos {.unnumbered}
+---
+title: "Conteneurs: Notions de base"
+description: Introduction aux conteneurs à l'utilisation, la création et l'orcherstration de conteneurs.
 
-Une introduction à l'utilisation et la création de conteneurs avec Docker.
+metadata-files:
+  - quarto-utils/index-listing.yml
+
+listing: true
+
+jupyter: java-lts
+---
+

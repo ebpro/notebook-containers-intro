@@ -1,0 +1,37 @@
+{
+	"name": "Quarto Jupyter Environment - Java101",
+	"dockerComposeFile": "../quarto-utils/docker-compose.yml",
+	"service": "notebook",
+	"workspaceFolder": "/home/jovyan/work/local",
+	"shutdownAction": "stopCompose",
+	// Add useful VS Code extensions
+	"customizations": {
+	  "vscode": {
+		"extensions": [
+		  "cweijan.vscode-database-client2",
+		  "donjayamanne.githistory",
+		  "eamodio.gitlens",
+		  "GabrielBB.vscode-lombok",
+		  "GitHub.copilot",
+		  "github.vscode-github-actions",
+		  "james-yu.latex-workshop",
+		  "jebbs.plantuml",
+		  "ms-azuretools.vscode-docker",
+		  "ms-kubernetes-tools.vscode-kubernetes-tools",
+		  "ms-python.python",
+		  "ms-toolsai.jupyter",
+		  "quarto.quarto-vscode",
+		  "quarto.quarto",
+		  "redhat.vscode-xml",
+		  "SonarSource.sonarlint-vscode",
+		  "vscjava.vscode-java-pack",
+		  "vscode-icons-team.vscode-icons"
+		],
+		"settings": {
+		  "python.defaultInterpreterPath": "/opt/conda/bin/python"
+		}
+	  }
+	},
+	// Container-specific settings
+	"remoteUser": "jovyan"
+  }  

@@ -1,0 +1,27 @@
+[submodule "quarto-utils"]
+	path = quarto-utils
+	url = git@github.com:ebpro/quarto-utils.git
+[submodule "notebook-containers-intro-helloworld"]
+	path = notebook-containers-intro-helloworld
+	url = git@github.com:ebpro/notebook-containers-intro-helloworld.git
+[submodule "notebook-containers-intro-sample-c"]
+	path = notebook-containers-intro-sample-c
+	url = git@github.com:ebpro/notebook-containers-intro-sample-c.git
+[submodule "notebook-containers-intro-sample-multiarch"]
+	path = notebook-containers-intro-sample-multiarch
+	url = git@github.com:ebpro/notebook-containers-intro-sample-multiarch.git
+[submodule "notebook-containers-intro-sample-sqlite"]
+	path = notebook-containers-intro-sample-sqlite
+	url = git@github.com:ebpro/notebook-containers-intro-sample-sqlite.git
+[submodule "notebook-containers-intro-sample-java-helloworld"]
+	path = notebook-containers-intro-sample-java-helloworld
+	url = git@github.com:ebpro/notebook-containers-intro-sample-java-helloworld.git
+[submodule "notebook-containers-intro-sample-java-restjpa"]
+	path = notebook-containers-intro-sample-java-restjpa
+	url = git@github.com:ebpro/notebook-containers-intro-sample-java-restjpa.git
+[submodule "notebook-containers-intro-sample-python-helloworld"]
+	path = notebook-containers-intro-sample-python-helloworld
+	url = git@github.com:ebpro/notebook-containers-intro-sample-python-helloworld.git
+[submodule "notebook-containers-intro-sample-python-rest"]
+	path = notebook-containers-intro-sample-python-rest
+	url = git@github.com:ebpro/notebook-containers-intro-sample-python-rest.git

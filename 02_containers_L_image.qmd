@@ -1,0 +1,498 @@
+---
+title: 'Conteneurs: Création d''une image'
+description: Création d'image de conteneurs, application avec Docker.
+categories:
+  - Containers
+  - Docker
+  - I211
+  - PO43
+  - Lecture
+provide_notes: true
+provide_slides: false
+jupyter: zsh
+---
+
+## Informations techniques 
+
+::: {layout="[ 0.5, -0.05, 0.45 ]"}
+:::: {#first-column}
+{{< include ./quarto-utils/_tools_Git.qmd >}}
+:::
+:::: {#second-column}
+{{< include ./quarto-utils/_tools_Docker.qmd >}}
+::::
+:::
+
+{{< include ./quarto-utils/_init_Docker.qmd >}}
+
+## Format OCI des Images
+
+Une image conteneur suit la [spécification OCI](https://github.com/opencontainers/image-spec/blob/main/spec.md) qui la définit comme un ensemble hiérarchique de couches en lecture seule. Chaque couche enregistre uniquement les modifications par rapport à la précédente, ce qui permet une réutilisation efficace des composants communs entre différentes images. Les métadonnées de l'image (commande par défaut, variables d'environnement, etc.) sont stockées séparément des couches de système de fichiers.
+
+::: {.callout-tip}
+Cette architecture en couches permet le partage efficace des couches communes, la réduction de l'espace disque et une mise à jour incrémentale des images.
+:::
+
+```{zsh}
+#| output: true
+#| echo: true
+docker pull ubuntu:jammy
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker history --no-trunc ubuntu:jammy
+```
+
+## Manuellement
+
+La création manuelle d'une image, bien que possible en exécutant et modifiant un conteneur puis en validant ces changements avec `docker commit`, est une approche déconseillée car elle génère des images difficiles à maintenir et à reproduire de façon fiable.
+
+Voici un exemple simple de création manuelle d'image Docker qui fournit la commande `git` en exécutant des commandes dans un conteneur interactif.
+La syntaxe `<<EOF ... EOF` simule une session interactive dans le conteneur en permettant d'envoyer plusieurs commandes comme si elles étaient tapées manuellement dans un terminal. Cette technique est particulièrement utile pour exécuter une séquence de commandes dans le conteneur sans avoir besoin d'ouvrir une session interactive avec `docker exec`. Les commandes entre `EOF` sont exécutées séquentiellement comme si un utilisateur les tapait dans un shell, mais de manière automatisée.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --name my-ubuntu-container --interactive ubuntu:jammy bash -  <<EOF
+apt-get update &> /dev/null
+apt-get install --yes --no-install-recommends &> /dev/null \
+    git 
+apt-get clean autoclean &> /dev/null
+apt-get autoremove --yes &> /dev/null
+rm -rf /var/lib/apt/lists/*
+EOF
+```
+
+Une fois les modifications effectuées dans le conteneur, nous les sauvegardons sous forme d'une nouvelle couche dans l'image avec la commande `docker commit`, créant ainsi une image personnalisée.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker commit my-ubuntu-container mygit:latest
+```
+
+Une fois l'image créée, le conteneur temporaire peut être supprimé avec la commande `docker rm` car il n'est plus nécessaire.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker rm my-ubuntu-container
+```
+
+L'image personnalisée que nous venons de créer peut maintenant servir de base pour instancier de nouveaux conteneurs selon nos besoins.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --rm mygit git --version
+```
+
+L'historique montre que la nouvelle image conserve l'identifiant de la dernière couche d'Ubuntu comme avant-dernière couche, et ajoute par-dessus une nouvelle couche contenant nos modifications d'installation de Git.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker history --no-trunc mygit
+```
+
+```{zsh}
+#| output: false
+#| echo: false
+docker image rm mygit
+```
+
+## Dockerfile
+
+La création d'une image à l'aide d'un fichier `Dockerfile` est l'approche recommandée, car elle permet d'automatiser le processus de construction et assure la reproductibilité grâce au versionnement du fichier avec Git, facilitant ainsi la gestion des mises à jour et des versions parallèles de l'infrastructure.
+
+### Structure de base
+
+Le fichier `Dockerfile` suivant illustre les concepts de base. Il s'appuie sur une image de python (`FROM`), ajoute les fichiers de l'application depuis le contexte (`COPY`), exécute les commandes nécessaire à la construction de l'image (`RUN`) et défini la commande par défaut de l'image (`CMD`).
+
+```{zsh}
+#| echo: false
+#| output: asis
+GITHUB_REPO=ebpro/notebook-containers-intro-sample-python-helloworld
+GITHUB_URL=https://github.com/${GITHUB_REPO}
+BRANCH=develop
+SRC_DIR=/home/jovyan/work/src/github/${GITHUB_REPO}/
+
+gitpuller ${GITHUB_URL} ${BRANCH} ${SRC_DIR} > /dev/null 2>&1
+echo "Retrieved example code from [${GITHUB_REPO}](${GITHUB_URL})" is clone in "${SRC_DIR}"
+```
+
+```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-python-helloworld/Dockerfile" code-line-numbers="true"}
+```
+
+La commande suivante construit une image tagguée à partir du Dockerfile contenu dans le répertoire courant (indiqué par le `.` à la fin).
+C'est ce dernier paramètre qui est le contexte. Les options `--build-arg` permettre de fixer les `ARG` du Dockerfile.
+
+```{zsh}
+#| output: true
+#| echo: true
+ 
+( cd ${SRC_DIR} && \
+ docker image build \
+     --quiet \
+     --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')\
+     --tag ${DOCKERHUB_USERNAME}/helloworld_python:0.0.1 \
+     . 
+)
+```
+
+d'autres tags peuvent être appliqués pour facilier l'usage de l'image, généralement des versions plus génériques (1.2.3, 1.2 et 1) et/ou des informations sur l'image de base avec des variantes (1.2.3-ubuntu, 1.2.3-debian, ...) et/ou des variantes de constructions de l'image elle-même et toujours `latest`.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker tag ${DOCKERHUB_USERNAME}/helloworld_python:0.0.1 ${DOCKERHUB_USERNAME}/helloworld_python:0
+docker tag ${DOCKERHUB_USERNAME}/helloworld_python:0.0.1 ${DOCKERHUB_USERNAME}/helloworld_python:latest
+
+docker image ls
+```
+
+Cette image peut alors être utilisée localement.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --rm ${DOCKERHUB_USERNAME}/helloworld_python
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --env NAME="Pierre" --rm ${DOCKERHUB_USERNAME}/helloworld_python:0.0.1
+```
+
+Pour analyser la structure d'une image Docker, nous pouvons examiner sa taille totale et la composition détaillée de ses couches. Voici comment obtenir ces informations de manière lisible :
+
+```{zsh}
+#| output: true
+#| echo: true
+
+docker image ls \
+    --filter "reference=${DOCKERHUB_USERNAME}/helloworld_python" \
+    --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}"
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker history ${DOCKERHUB_USERNAME}/helloworld_python:0.0.1
+```
+
+### Publication sur un Registry
+
+Les images Docker peuvent être partagées via des registries comme Docker Hub ou d'autres (GitLab, GitHub, AWS, Azure, Google Cloud, etc.).
+Pour publier une image :
+
+1. Authentifiez-vous au registry :
+```bash
+docker login [registry-url]  # registry-url est optionnel pour Docker Hub
+```
+
+2. Nommez correctement votre image avec le format `<registry>/<account>/<image>:<tag>` :
+```bash
+docker tag myapp:latest username/myapp:latest
+```
+
+3. Publiez l'image :
+```bash
+docker push username/myapp:latest
+```
+
+::: {.callout-note}
+Le nom de l'image doit inclure votre nom d'utilisateur sur le registry pour la publication.
+
+L'exemple ci-dessous montre coomment réaliser le login dans un script. 
+En mode interactif, il est possible de donner le mot de passe à la demande juste avec `docker login`.
+:::
+
+```{zsh}
+#| output: true
+#| echo: true
+echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+
+docker push ${DOCKERHUB_USERNAME}/helloworld_python:0.0.1
+docker push ${DOCKERHUB_USERNAME}/helloworld_python:latest
+```
+
+## Entrypoint
+
+La directive `ENTRYPOINT` définit la commande principale de l'image, tandis que `CMD` fournit les arguments par défaut. Lors de l'exécution avec `docker run`, l'image se comporte comme la commande définie par `ENTRYPOINT`, les arguments fournis au `run` remplacent ceux de `CMD`. Par exemple, avec `ENTRYPOINT ["git"]` et `CMD ["--version"]`, l'image répond comme la commande `git`, affichant sa version par défaut mais acceptant d'autres sous-commandes git.
+
+L'exemple suivant montre comment construire une commande qui crée une base de donnée sqlite dans repertoire courant.
+
+```{zsh}
+#| echo: false
+#| output: asis
+GITHUB_REPO=ebpro/notebook-containers-intro-sample-sqlite
+GITHUB_URL=https://github.com/${GITHUB_REPO}
+BRANCH=develop
+SRC_DIR=/home/jovyan/work/src/github/${GITHUB_REPO}/
+
+gitpuller ${GITHUB_URL} ${BRANCH} ${SRC_DIR} > /dev/null 2>&1
+echo "Retrieved example code from [${GITHUB_REPO}](${GITHUB_URL})" is cloned in "${SRC_DIR}"
+```
+
+
+```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-sqlite/Dockerfile" code-line-numbers="true"}
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker build --quiet --tag ebruno/sqlite ${SRC_DIR}
+```
+
+Le run affiche par défaut la version au lieu de l'aide.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --rm ebruno/sqlite
+```
+
+et il n'est plus nécessaire de redonner la commande, le nom de l'image suffit. En utilisant un alias, il est donc possible de donner l'illusion qu'il s'agit d'un programme.
+
+```{zsh}
+#| output: true
+#| echo: true
+# sqlite() {docker run -v ${PWD}:/workdir --rm ebruno/sqlite}
+sqlite() {docker run -v /tmp:/workdir --rm ebruno/sqlite}
+    
+sqlite "DROP TABLE IF EXISTS data;"
+sqlite "CREATE TABLE IF NOT EXISTS data (key TEXT PRIMARY KEY,value TEXT NOT NULL);"
+sqlite "INSERT INTO data values('A','10');INSERT INTO data values('B','20');"
+sqlite "SELECT * FROM data;"
+```
+
+## Construction Multi-étapes
+
+Les Dockerfiles multi-étapes permettent d'optimiser la taille finale des images en séparant les phases de build et de production. Chaque étape commence par une instruction `FROM` et peut être nommée avec `AS` pour permettre la copie de fichiers entre étapes via `COPY --from=build ...`. 
+
+::: {.callout-tip}
+Cette approche permet de (1) Séparer environnements de build et de production, (2) Réduire significativement la taille de l'image finale et (3) Ne conserver que les artefacts nécessaires à l'exécution.
+:::
+
+L'utilisation la plus classique est d'avoir deux stages : (1) compilation et (2) exécution. La première étape contient l'environnement de développement (gcc pour le C, JDK+Maven pour Java, ...) et les sources,  elle produit l'exécutable (un binaire pour le C, du bytecode ou un jar pour Java, ...). La seconde étape ne contient que l'environnement d'exécution (éventuelles librairies dynamiques pour le C, JRE pour Java, ...) et l'exécutable.
+
+```{zsh}
+#| echo: false
+#| output: asis
+GITHUB_REPO=ebpro/notebook-containers-intro-sample-c
+GITHUB_URL=https://github.com/${GITHUB_REPO}
+BRANCH=develop
+SRC_DIR=/home/jovyan/work/src/github/${GITHUB_REPO}/
+
+gitpuller ${GITHUB_URL} ${BRANCH} ${SRC_DIR} > /dev/null 2>&1
+echo "Retrieved example code from [${GITHUB_REPO}](${GITHUB_URL})" is cloned in "${SRC_DIR}"
+```
+
+
+```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-c/Dockerfile" code-line-numbers="true"}
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+
+( cd "${SRC_DIR}" && \
+ docker image build \
+     --quiet \
+     --tag ${DOCKERHUB_USERNAME}/helloworld_c:0.1 \
+     . )
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+
+docker container run ${DOCKERHUB_USERNAME}/helloworld_c:0.1 Pierre
+```
+
+## Gestion des Données et Communications
+
+### Volumes pour la Persistance
+
+Les volumes Docker permettent de stocker des données en dehors du conteneur. 
+L'instruction `VOLUME` dans un Dockerfile déclare un point de montage pour ces données persistantes.
+
+```dockerfile
+# Déclaration des volumes
+VOLUME ["/data", "/logs"]
+```
+
+À l'exécution, ces volumes peuvent être montés explicitement:
+
+```bash
+docker run -v mydata:/data myapp
+```
+
+### Exposition des Ports
+
+L'instruction `EXPOSE` documente les ports qu'un conteneur utilise pour communiquer.
+Cette instruction est informative et ne publie pas automatiquement les ports.
+
+```dockerfile
+# Documentation des ports
+EXPOSE 80/tcp 443/tcp
+```
+
+Pour rendre le service accessible depuis l'hôte:
+```bash
+docker run -p 8080:80 myapp
+```
+
+## Surveillance avec HEALTHCHECK
+
+L'instruction `HEALTHCHECK` permet de définir une commande pour vérifier la santé d'un conteneur en cours d'exécution. 
+Docker exécute périodiquement cette commande et utilise son code de retour pour déterminer l'état du conteneur : 0 (sain), 1 (non sain) ou 2 (réservé).
+C'est particulièrement utile pour la détection automatique des défaillances, l'orchestration des services et la gestion des dépendances dans des environnements multi-conteneurs comme Docker Compose ou Kubernetes.
+
+```dockerfile
+# Exemple de healthcheck pour une application web
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
+```
+
+::: {.callout-tip}
+Les options configurables incluent :
+- `--interval` : fréquence de vérification (par défaut: 30s)
+- `--timeout` : délai maximum d'exécution (par défaut: 30s)
+- `--start-period` : délai initial avant la première vérification
+- `--retries` : nombre d'échecs consécutifs avant de considérer le conteneur comme non sain
+:::
+
+
+## Avancé
+
+### Considérations de Sécurité
+
+Utiliser des images officielles et minimalistes, créer un utilisateur dédié, ne pas inclure de secrets dans l'image, scanner l'image, limiter les ressources.
+
+```dockerfile
+# Utiliser des images officielles et minimalistes
+FROM alpine:3.18
+```
+
+```dockerfile
+# Créer utilisateur dédié
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+WORKDIR /app
+COPY --chown=appuser:appgroup . .
+USER appuser
+```
+
+```dockerfile
+# Ne pas inclure de secrets dans l'image
+# INCORRECT
+ENV API_KEY=123456  # ❌
+
+# CORRECT
+ARG API_KEY
+RUN --mount=type=secret,id=api_key ❤️
+```
+
+```bash
+# Scanner l'image
+docker scout quickview myapp:latest
+
+# Audit détaillé
+docker scout cves myapp:latest
+```
+
+# Resource Limits avec docker run
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run -d --rm --quiet \
+  --name webapp \
+  --memory="512m" \
+  --memory-reservation="256m" \
+  --cpus="0.5" \
+  --pids-limit=50 \
+  --read-only \
+  --tmpfs /tmp \
+  --security-opt no-new-privileges \
+  nginx:alpine
+
+# Vérifier les limites
+docker stats webapp --no-stream # remove --no-stream to keep the stats running
+
+# Mettre à jour les limites
+docker update \
+  --memory="1g" \
+  --cpus="1" \
+  webapp
+```
+
+## Multi-Architecture
+
+Docker permet de construire des images pour différentes architectures en utilisant `buildx`.
+`buildx` est un plugin pour docker qui permet de construire des images pour différentes architectures. Il est nécessaire de configurer buildx pour utiliser les différentes plateformes.
+Dans `Docker desktop`, `buildx` est déjà configuré. Pour les autres plateformes, il faut le configurer.
+
+```{zsh}
+#| output: false
+#| echo: false
+
+# 1. Create context with TLS
+docker context create secure-context \
+  --description "TLS enabled context" \
+  --docker "host=$DOCKER_HOST,ca=$DOCKER_CERT_PATH/ca.pem,cert=$DOCKER_CERT_PATH/cert.pem,key=$DOCKER_CERT_PATH/key.pem"
+
+# 2. Switch context
+docker context use secure-context
+
+# 3. Configure builder
+docker buildx create \
+  --name secure-builder \
+  --driver docker-container \
+  --bootstrap \
+  secure-context --use
+
+#DOCKER_HOST=$OLD_DOCKER_HOST
+```
+
+```{zsh}
+#| echo: false
+#| output: asis
+GITHUB_REPO=ebpro/notebook-containers-intro-sample-multiarch
+GITHUB_URL=https://github.com/${GITHUB_REPO}
+BRANCH=develop
+SRC_DIR=/home/jovyan/work/src/github/${GITHUB_REPO}/
+
+gitpuller ${GITHUB_URL} ${BRANCH} ${SRC_DIR} > /dev/null 2>&1
+echo "Retrieved example code from [${GITHUB_REPO}](${GITHUB_URL})" is cloned in "${SRC_DIR}"
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+
+## Si besoin Configurer buildx
+# docker buildx create --use
+
+# Build multi-arch
+(cd "${SRC_DIR}" && \
+  docker buildx build --quiet \
+    --platform linux/amd64,linux/arm64 \
+    -t $DOCKERHUB_USERNAME/hello-arch:latest \
+    --push \
+    . )
+
+docker run --quiet --rm $DOCKERHUB_USERNAME/hello-arch:latest
+docker run --quiet --rm --platform linux/arm64 $DOCKERHUB_USERNAME/hello-arch:latest
+docker run --quiet --rm --platform linux/amd64 $DOCKERHUB_USERNAME/hello-arch:latest
+```
+

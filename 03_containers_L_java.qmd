@@ -1,0 +1,221 @@
+---
+title: 'Conteneurs: Application à Java'
+description: Application des conteneurs pour la langage Java.
+categories:
+  - Containers
+  - Docker
+  - Java
+  - I211
+  - PO43
+  - Lecture
+provide_notes: true
+provide_slides: false
+jupyter: zsh
+---
+
+## Informations techniques 
+
+::: {layout="[ 0.5, -0.05, 0.45 ]"}
+:::: {#first-column}
+{{< include ./quarto-utils/_tools_Git.qmd >}}
+:::
+:::: {#second-column}
+{{< include ./quarto-utils/_tools_Docker.qmd >}}
+::::
+:::
+
+{{< include ./quarto-utils/_init_Docker.qmd >}}
+
+## Construction depuis une Image Maven
+
+La méthode la plus directe pour conteneuriser une application Java consiste à utiliser une image Maven officielle comme base, y copier le code source, puis compiler et exécuter l'application directement dans le conteneur.
+
+```{zsh}
+#| echo: false
+#| output: asis
+GITHUB_REPO=ebpro/notebook-containers-intro-sample-java-helloworld
+GITHUB_URL=https://github.com/${GITHUB_REPO}
+BRANCH=develop
+SRC_DIR=/home/jovyan/work/src/github/${GITHUB_REPO}/
+
+gitpuller ${GITHUB_URL} ${BRANCH} ${SRC_DIR} > /dev/null 2>&1
+echo "Retrieved example code from [${GITHUB_REPO}](${GITHUB_URL})" is cloned in "${SRC_DIR}"
+```
+
+```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-helloworld/Dockerfile.01.mavenimage" code-line-numbers="true"}
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+(cd "${SRC_DIR}" && \
+docker image build --quiet \
+  --tag javahello:mavenimage \
+  --file Dockerfile.01.mavenimage . )
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker image ls \
+  --filter "reference=javahello:mavenimage" \
+  --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}" \
+  --no-trunc
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker container run --rm javahello:mavenimage
+```
+
+## Construction Multi-étapes
+
+La construction multi-étapes (multi-stage build) permet d'optimiser les images Docker Java en séparant l'environnement de build (Maven + JDK) de l'environnement d'exécution (JRE uniquement), ne conservant dans l'image finale que l'application compilée et ses dépendances sous forme d'uber-jar, réduisant ainsi significativement la taille de l'image. 
+
+
+```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-helloworld/Dockerfile.02.mavenimagestage" code-line-numbers="true"}
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+(cd "${SRC_DIR}" && \
+docker image build --quiet --tag javahello:mavenimagestage --file Dockerfile.02.mavenimagestage . )
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker image ls \
+  --filter "reference=javahello:mavenimagestage" \
+  --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}" \
+  --no-trunc
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --rm javahello:mavenimagestage
+```
+
+## Cache docker
+
+Docker propose un système de cache de construction (build cache) permettant de persister des dossiers spécifiques entre les builds successifs d'une image - particulièrement utile avec Maven pour mettre en cache le répertoire `~/.m2` et ainsi éviter de retélécharger les dépendances à chaque construction.
+
+```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-helloworld/Dockerfile.03.cache" code-line-numbers="true"}
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+(cd "${SRC_DIR}" && \
+docker image build --quiet \
+  --tag javahello:cache \
+  --file Dockerfile.03.cache . )
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker image ls \
+  --filter "reference=javahello:cache" \
+  --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}" \
+  --no-trunc
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --rm javahello:cache
+```
+
+## Maven Wrapper
+
+En utilisant un [Maven Wrapper](https://maven.apache.org/wrapper/), nous pouvons baser notre image Docker sur une simple image JDK, le wrapper se chargeant de télécharger et d'utiliser automatiquement la version appropriée de Maven lors de la phase de construction.
+
+```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-helloworld/Dockerfile.04.wrapper" code-line-numbers="true"}
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+(cd "${SRC_DIR}" && \
+docker image build --quiet \
+  --tag javahello:wrapper \
+  --file Dockerfile.04.wrapper . )
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker image ls \
+  --filter "reference=javahello:wrapper" \
+  --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}" \
+  --no-trunc
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --rm javahello:wrapper
+```
+
+## Construction depuis Zéro
+
+Pour une personnalisation complète de l'environnement de développement Java, il est possible de construire une image Docker à partir de zéro en utilisant [SDKMAN](https://sdkman.io/), un gestionnaire de SDK qui permet d'installer et gérer différentes versions de JDK, Maven et autres outils Java. 
+
+```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-helloworld/Dockerfile.05.scratch" code-line-numbers="true"}
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+(cd "${SRC_DIR}" && \
+docker image build --quiet \
+  --tag javahello:scratch \
+  --file Dockerfile.05.scratch . )
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker image ls \
+  --filter "reference=javahello:scratch" \
+  --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}" \
+  --no-trunc
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --rm javahello:scratch
+```
+
+## Optimisation avec jlink et Modules Java
+
+Pour obtenir une image Docker Java minimale, l'approche recommandée consiste à utiliser le système de modules Java (JPMS) combiné avec l'outil `jlink`, permettant de créer une distribution personnalisée du JRE contenant uniquement les modules nécessaires à l'exécution de l'application. 
+
+Les modules Java (JPMS) et jlink permettent de créer une distribution JRE optimisée en incluant uniquement les composants nécessaires à l'exécution de l'application, réduisant ainsi significativement la taille de l'image Docker, mais cette approche nécessite une modularisation explicite du code et de ses dépendances, ce qui peut être complexe avec des bibliothèques tierces non modulaires ou des applications héritées, et requiert une bonne compréhension du système de modules Java pour éviter les problèmes de résolution des dépendances à l'exécution.
+
+**TODO**
+
+## Encore plus loin avec GraalVM
+
+Pour des performances et une taille d'image optimales, il est possible d'utiliser [GraalVM](https://www.graalvm.org/) pour compiler l'application Java en un exécutable natif, éliminant ainsi le besoin d'une JVM pour exécuter l'application.
+
+[GraalVM](https://www.graalvm.org/) représente l'ultime optimisation pour les applications Java conteneurisées en compilant directement le code Java en un exécutable natif autonome, éliminant ainsi le besoin d'une JVM et réduisant drastiquement la taille de l'image et le temps de démarrage, bien que cette approche présente des limitations avec certaines fonctionnalités Java comme la réflexion dynamique, les proxies et d'autres fonctionnalités JVM avancées qui nécessitent une configuration spécifique pour la compilation native.
+
+**TODO**
+
+## Comparaison des images
+
+```{zsh}
+#| output: true
+#| echo: true
+docker image ls \
+  --filter "reference=javahello" \
+  --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}" \
+  --no-trunc
+```
+

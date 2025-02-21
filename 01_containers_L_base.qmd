@@ -886,3 +886,4 @@ curl -m 5 -sI docker:8080 | grep -q "HTTP/" && echo "✅ Port 8080 responds" || 
 # Vérifier le mapping
 docker container stop web-port
 ```
+

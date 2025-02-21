@@ -1,7 +1,13 @@
 ---
 title: "Conteneurs: Notions de base"
-description: Introduction aux conteneurs à l'utilisation, la création et l'orcherstration de conteneurs.
+subtitle: "Introduction pratique aux technologies de conteneurisation"
+description: |
+  Introduction aux conteneurs couvrant les aspects fondamentaux :
 
+  - Utilisation et gestion des conteneurs
+  - Création d'images personnalisées
+  - Orchestration avec Docker Compose
+  
 metadata-files:
   - quarto-utils/index-listing.yml
 
@@ -9,4 +15,5 @@ listing: true
 
 jupyter: java-lts
 ---
+
 

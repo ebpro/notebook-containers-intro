@@ -7,6 +7,7 @@ categories:
     - Java
     - PostgreSQL
     - JPA
+    - Exercices
 provide_notes: true
 provide_slides: false    
 jupyter: zsh

@@ -114,16 +114,16 @@ Le fichier `Dockerfile` suivant illustre les concepts de base. Il s'appuie sur u
 ```{zsh}
 #| echo: false
 #| output: asis
-GITHUB_REPO=ebpro/notebook-containers-intro-sample-python-helloworld
-GITHUB_URL=https://github.com/${GITHUB_REPO}
-BRANCH=develop
-SRC_DIR=/home/jovyan/work/src/github/${GITHUB_REPO}/
-
-gitpuller ${GITHUB_URL} ${BRANCH} ${SRC_DIR} > /dev/null 2>&1
-echo "Retrieved example code from [${GITHUB_REPO}](${GITHUB_URL})" is clone in "${SRC_DIR}"
+PROVIDER="github" && \
+REPO="ebpro/notebook-containers-intro-sample-python-helloworld" && \
+BRANCH="develop" && \
+gitpull.sh --provider github  \
+  --branch ${BRANCH} ${REPO} \
+  --message "Les exemples suivants sont accessibles dans le dépôt :" && \
+source get_src_dir.sh ${PROVIDER} ${REPO} 
 ```
 
-```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-python-helloworld/Dockerfile" code-line-numbers="true"}
+```{.dockerfile include="/home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-python-helloworld/Dockerfile" code-line-numbers="true"}
 ```
 
 La commande suivante construit une image tagguée à partir du Dockerfile contenu dans le répertoire courant (indiqué par le `.` à la fin).
@@ -131,15 +131,20 @@ C'est ce dernier paramètre qui est le contexte. Les options `--build-arg` perme
 
 ```{zsh}
 #| output: true
+#| echo: false 
+ 
+cd ${SRC_DIR} 
+```
+
+```{zsh}
+#| output: true
 #| echo: true
  
-( cd ${SRC_DIR} && \
- docker image build \
+docker image build \
      --quiet \
      --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')\
      --tag ${DOCKERHUB_USERNAME}/helloworld_python:0.0.1 \
      . 
-)
 ```
 
 d'autres tags peuvent être appliqués pour facilier l'usage de l'image, généralement des versions plus génériques (1.2.3, 1.2 et 1) et/ou des informations sur l'image de base avec des variantes (1.2.3-ubuntu, 1.2.3-debian, ...) et/ou des variantes de constructions de l'image elle-même et toujours `latest`.
@@ -234,17 +239,16 @@ L'exemple suivant montre comment construire une commande qui crée une base de d
 ```{zsh}
 #| echo: false
 #| output: asis
-GITHUB_REPO=ebpro/notebook-containers-intro-sample-sqlite
-GITHUB_URL=https://github.com/${GITHUB_REPO}
-BRANCH=develop
-SRC_DIR=/home/jovyan/work/src/github/${GITHUB_REPO}/
-
-gitpuller ${GITHUB_URL} ${BRANCH} ${SRC_DIR} > /dev/null 2>&1
-echo "Retrieved example code from [${GITHUB_REPO}](${GITHUB_URL})" is cloned in "${SRC_DIR}"
+PROVIDER="github" && \
+REPO="ebpro/notebook-containers-intro-sample-sqlite" && \
+BRANCH="develop" && \
+gitpull.sh --provider github  \
+  --branch ${BRANCH} ${REPO} \
+  --message "Les exemples suivants sont accessibles dans le dépôt :" && \
+source get_src_dir.sh ${PROVIDER} ${REPO} 
 ```
 
-
-```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-sqlite/Dockerfile" code-line-numbers="true"}
+```{.dockerfile include="/home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-sqlite/Dockerfile" code-line-numbers="true"}
 ```
 
 ```{zsh}
@@ -266,9 +270,9 @@ et il n'est plus nécessaire de redonner la commande, le nom de l'image suffit. 
 ```{zsh}
 #| output: true
 #| echo: true
-# sqlite() {docker run -v ${PWD}:/workdir --rm ebruno/sqlite}
-sqlite() {docker run -v /tmp:/workdir --rm ebruno/sqlite}
-    
+# alias sqlite_here='docker run -v ${PWD}:/workdir --rm ebruno/sqlite'
+# alias sqlite_tmp='docker run -v /tmp:/workdir --rm ebruno/sqlite'
+alias sqlite='docker run -v /tmp:/workdir --rm ebruno/sqlite'   
 sqlite "DROP TABLE IF EXISTS data;"
 sqlite "CREATE TABLE IF NOT EXISTS data (key TEXT PRIMARY KEY,value TEXT NOT NULL);"
 sqlite "INSERT INTO data values('A','10');INSERT INTO data values('B','20');"
@@ -288,28 +292,33 @@ L'utilisation la plus classique est d'avoir deux stages : (1) compilation et (2)
 ```{zsh}
 #| echo: false
 #| output: asis
-GITHUB_REPO=ebpro/notebook-containers-intro-sample-c
-GITHUB_URL=https://github.com/${GITHUB_REPO}
-BRANCH=develop
-SRC_DIR=/home/jovyan/work/src/github/${GITHUB_REPO}/
-
-gitpuller ${GITHUB_URL} ${BRANCH} ${SRC_DIR} > /dev/null 2>&1
-echo "Retrieved example code from [${GITHUB_REPO}](${GITHUB_URL})" is cloned in "${SRC_DIR}"
+PROVIDER="github" && \
+REPO="ebpro/notebook-containers-intro-sample-c" && \
+BRANCH="develop" && \
+gitpull.sh --provider github  \
+  --branch ${BRANCH} ${REPO} \
+  --message "Les exemples suivants sont accessibles dans le dépôt :" && \
+source get_src_dir.sh ${PROVIDER} ${REPO} 
 ```
 
+```{.dockerfile include="/home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-c/Dockerfile" code-line-numbers="true"}
+```
 
-```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-c/Dockerfile" code-line-numbers="true"}
+```{zsh}
+#| output: true
+#| echo: false 
+ 
+cd ${SRC_DIR} 
 ```
 
 ```{zsh}
 #| output: true
 #| echo: true
 
-( cd "${SRC_DIR}" && \
- docker image build \
+docker image build \
      --quiet \
      --tag ${DOCKERHUB_USERNAME}/helloworld_c:0.1 \
-     . )
+     . 
 ```
 
 ```{zsh}
@@ -467,13 +476,20 @@ docker buildx create \
 ```{zsh}
 #| echo: false
 #| output: asis
-GITHUB_REPO=ebpro/notebook-containers-intro-sample-multiarch
-GITHUB_URL=https://github.com/${GITHUB_REPO}
-BRANCH=develop
-SRC_DIR=/home/jovyan/work/src/github/${GITHUB_REPO}/
+PROVIDER="github" && \
+REPO="ebpro/notebook-containers-intro-sample-multiarch" && \
+BRANCH="develop" && \
+gitpull.sh --provider github  \
+  --branch ${BRANCH} ${REPO} \
+  --message "Les exemples suivants sont accessibles dans le dépôt :" && \
+source get_src_dir.sh ${PROVIDER} ${REPO} 
+```
 
-gitpuller ${GITHUB_URL} ${BRANCH} ${SRC_DIR} > /dev/null 2>&1
-echo "Retrieved example code from [${GITHUB_REPO}](${GITHUB_URL})" is cloned in "${SRC_DIR}"
+```{zsh}
+#| output: true
+#| echo: false 
+ 
+cd ${SRC_DIR} 
 ```
 
 ```{zsh}
@@ -484,12 +500,11 @@ echo "Retrieved example code from [${GITHUB_REPO}](${GITHUB_URL})" is cloned in 
 # docker buildx create --use
 
 # Build multi-arch
-(cd "${SRC_DIR}" && \
-  docker buildx build --quiet \
+docker buildx build --quiet \
     --platform linux/amd64,linux/arm64 \
     -t $DOCKERHUB_USERNAME/hello-arch:latest \
     --push \
-    . )
+    . 
 
 docker run --quiet --rm $DOCKERHUB_USERNAME/hello-arch:latest
 docker run --quiet --rm --platform linux/arm64 $DOCKERHUB_USERNAME/hello-arch:latest

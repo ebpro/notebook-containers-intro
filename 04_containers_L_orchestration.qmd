@@ -34,29 +34,32 @@ Docker compose, disponible comme [plugin](https://docs.docker.com/compose/instal
 
 ```{java}
 //| echo: false
-//| output: true
-String script="""
-GITHUB_REPO=ebpro/notebook-containers-intro-sample-java-restjpa
-GITHUB_URL=https://github.com/${GITHUB_REPO}
-BRANCH=develop
-SRC_DIR=/home/jovyan/work/src/github/${GITHUB_REPO}/
-
-gitpuller ${GITHUB_URL} ${BRANCH} ${SRC_DIR} > /dev/null 2>&1
-echo Retrieved example code from ${GITHUB_URL} is cloned in ${SRC_DIR}
-""";
-
-IJava.getKernelInstance().getMagics().applyCellMagic("shell",List.of(""),script);
-"";
+//| output: asis
+%%shell
+PROVIDER="github" && \
+REPO="ebpro/notebook-containers-intro-sample-java-restjpa" && \
+BRANCH="develop" && \
+gitpull.sh --provider github  \
+  --branch ${BRANCH} ${REPO} \
+  --message "Les exemples suivants sont accessibles dans le dépôt :" && \
+source get_src_dir.sh ${PROVIDER} ${REPO} 
 ```
 
-```{.docker-compose include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa/docker-compose.yml" code-line-numbers="true"}
+```{java}
+//| echo: false
+//| output: asis
+%%shell
+PROVIDER="github"
+REPO="ebpro/notebook-containers-intro-sample-java-restjpa"
+source get_src_dir.sh ${PROVIDER} ${REPO} 
+display_file.sh --lang dockerfile --numbers ${SRC_DIR}/docker-compose.yml
 ```
 
 ```{java}
 //| echo: false
 //| output: false
 String script="""
-cd /home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa
+cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker compose down --remove-orphans
 """;
 
@@ -67,15 +70,15 @@ Pour démarrer une application multi-conteneurs, utilisez la commande `docker co
 
 ```{java}
 %%shell
-cd /home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa
-docker compose up --quiet-pull --detach
+cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
+docker compose up --progress=quiet --quiet-pull --detach
 ```
 
 La commande `docker compose ls` fournit une vue d'ensemble de tous les projets Docker Compose en cours d'exécution, affichant pour chacun son nom, le répertoire source, l'état des services et le nombre de conteneurs actifs.
 
 ```{java}
 %%shell
-cd /home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa
+cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker compose ls 
 ```
 
@@ -83,7 +86,7 @@ La commande `docker compose ps` affiche les conteneurs du projet en cours, avec 
 
 ```{java}
 %%shell
-cd /home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa
+cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker compose ps
 ```
 
@@ -91,13 +94,13 @@ Docker Compose gère automatiquement les réseaux et volumes en les préfixant a
 
 ```{java}
 %%shell
-cd /home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa
+cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker network ls
 ```
 
 ```{java}
 %%shell
-cd /home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa
+cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker volume ls
 ```
 
@@ -105,7 +108,7 @@ La commande `docker compose logs` permet de visualiser les journaux d'un ou plus
 
 ```{java}
 %%shell
-cd /home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa
+cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker compose logs --tail 5
 ```
 
@@ -118,7 +121,7 @@ La commande `docker compose down -v` supprime définitivement toutes les donnée
 
 ```{java}
 %%shell
-cd /home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa
+cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker compose down -v
 ```
 
@@ -128,7 +131,7 @@ La fabrication de l'image sera automatique au démarrage au besoin elle peut êt
 
 ```{java}
 %%shell
-cd /home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa
+cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker compose --progress=quiet build && 
   docker compose up --quiet-pull --detach
 ```
@@ -147,7 +150,7 @@ IJava.getKernelInstance().getMagics().applyCellMagic("shell",List.of(""),script)
 
 ```{java}
 %%shell
-cd /home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa
+cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker run --network notebook-containers-intro-sample-java-restjpa_frontend \
            --rm --quiet curlimages/curl:7.88.1 \
                curl --verbose --silent \
@@ -159,12 +162,18 @@ docker run --network notebook-containers-intro-sample-java-restjpa_frontend \
 
 L'exemple ci-dessous présente un exemple un peu plus avancé en ajoutant un reverse proxy (https://traefik.io) pour gérer les points d'entrées de l'application (sécurité, répartition de charges, ...).
 
-```{.dockerfile include="/home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa/docker-compose-proxy.yml" code-line-numbers="true"}
+```{java}
+//| echo: false
+//| output: asis
+%%shell
+PROVIDER="github"
+REPO="ebpro/notebook-containers-intro-sample-java-restjpa"
+source get_src_dir.sh ${PROVIDER} ${REPO} 
+display_file.sh --lang dockerfile --numbers ${SRC_DIR}/docker-compose-proxy.yml
 ```
 
 ```{java}
 %%shell
-cd /home/jovyan/work/src/github/ebpro/notebook-containers-intro-sample-java-restjpa
-docker compose --file Docker-compose.yml up --quiet-pull --detach
+cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
+docker compose --file docker-compose.yml up --quiet-pull --detach
 ```
-

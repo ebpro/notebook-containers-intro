@@ -46,7 +46,6 @@
                 // Python development
                 "ms-python.python",
                 "ms-toolsai.jupyter",
-                "quarto.quarto",
                 
 				// Docker
 				"ms-azuretools.vscode-docker",

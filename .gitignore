@@ -15,3 +15,5 @@ _output
 _freeze
 OLD
 HIDDEN
+
+**/*.quarto_ipynb

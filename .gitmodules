@@ -25,3 +25,6 @@
 [submodule "notebook-containers-intro-sample-python-rest"]
 	path = notebook-containers-intro-sample-python-rest
 	url = git@github.com:ebpro/notebook-containers-intro-sample-python-rest.git
+[submodule "_quarto-utils"]
+	path = _quarto-utils
+	url = git@github.com:ebpro/_quarto-utils.git

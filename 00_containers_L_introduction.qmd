@@ -1,311 +1,334 @@
 ---
-title: Introduction aux Conteneurs 
-description: Une introduction aux technologies de conteneurisation. 
-categories:
-    - Containers
-    - Docker
-    - I211
-    - PO43
-    - Lecture
-provide_notes: true
-provide_slides: true    
+title: Introduction aux Conteneurs
+subtitle: Concepts et Historique de la Conteneurisation
+description: Introduction aux technologies de conteneurisation et à Docker. Comprendre les différences entre machines virtuelles et conteneurs, et les principes fondamentaux des conteneurs.
+image: _quarto-utils/MyMedia/images/optimized/ian-taylor-jOqJbvo1P9g-unsplash_docker-400.webp
 jupyter: zsh
+tools:
+  - docker
+  - git
+
+programs:
+  - M1-InfoMath [DEV-ADV]
+  - CNAM-I [PO43]
+
+categories:
+  - Lecture
+  - Containers
+  - Docker
+
+provide_notes: true
+provide_slides: true
 ---
 
-{{< include ./quarto-utils/_init_Docker.qmd >}}
+## Objectifs du cours
 
-## Informations techniques 
+> À l’issue de ce cours, vous devez être capables de :
+>
+> - Comprendre l’évolution **Physique → VM → Conteneurs**
+> - Expliquer la différence entre **machine virtuelle** et **conteneur**
+> - Utiliser une **image** pour créer un conteneur
+> - Créer une **image simple** avec un Dockerfile
 
-:::: {layout="[ 0.5, -0.05, 0.45 ]"}
-::: {#first-column}
-{{< include ./quarto-utils/_tools_Git.qmd >}}
+Ce cours est une **introduction conceptuelle**.
+Les pratiques et usages avancés seront abordés dans les TP et cours suivants.
+
+
+
+## Rappel minimal : Ordinateur et Système d’exploitation
+
+> Objectif
+> Comprendre ce qui est virtualisé, partagé ou isolé.
+
+### Architecture simplifiée
+
+```text
+Applications
+────────────
+Système d’exploitation (Kernel)
+────────────
+Matériel (CPU, RAM, Disque, Réseau)
+```
+
+### Rôle du noyau (kernel)
+
+* Gestion des processus
+* Gestion de la mémoire
+* Accès au matériel
+* Sécurité et isolation
+
+::: callout-tip
+Toute application passe par le **noyau** pour accéder aux ressources.
 :::
-::: {#second-column}
-{{< include ./quarto-utils/_tools_Docker.qmd >}}
-:::
-::::
+
+
 
 ## Historique de la Virtualisation
 
+> La virtualisation répond à un problème simple :
+> **comment mieux exploiter le matériel disponible ?**
+
 :::: {.columns}
 ::: {.column width="50%"}
-- Ère Physique (1990-2000)
-  - **Infrastructure**
-    - Serveurs dédiés mono-usage
-    - Utilisation CPU faible
-    - Scaling vertical uniquement
 
-  - **Contraintes**
-    - Coûts CAPEX élevés
-    - Déploiement lent
-    - Maintenance complexe
-    - Conflits de dépendances
+**Ère Physique (1990–2000)**
+
+* **Infrastructure**
+
+  * Serveurs dédiés mono-usage
+  * Faible utilisation CPU
+  * Scalabilité verticale uniquement
+
+* **Contraintes**
+
+  * Coûts élevés
+  * Déploiements lents
+  * Maintenance complexe
+  * Conflits de dépendances
 :::
 
 ::: {.column width="50%"}
-- Ère Virtuelle (2000-2010)
-  - **Technologies**
-    - Hyperviseurs Enterprise
-      - VMware ESX, Microsoft Hyper-V, ...
-    - Solutions Open Source
-      - KVM, Xen, ...
 
-  - **Bénéfices**
-    - Consolidation
-    - Isolation des VMs
-    - Portabilité des VMs
-    - Haute disponibilité
+**Ère Virtuelle (2000–2010)**
+
+* **Technologies**
+
+  * Hyperviseurs : VMware ESX, Hyper-V
+  * Open Source : KVM, Xen
+
+* **Bénéfices**
+
+  * Consolidation des serveurs
+  * Isolation forte
+  * Portabilité des VMs
+  * Haute disponibilité
 :::
 ::::
 
-## Architecture de la Virtualisation
 
+
+## Architecture de la Virtualisation
 ```{mermaid}
 graph TB
-    %% Top Level Components
-    H[Hyperviseur] --> |gère| V[Machines Virtuelles]
-    V --> |utilise| R[Ressources Virtuelles]
-    
-    %% Virtual Resources
-    R --> CPU[vCPU]
-    R --> RAM[vRAM]
-    R --> DISK[vDisk]
-    R --> NET[vNIC]
-    
-    %% Hardware Support Layer
-    subgraph HW["Support Hardware (2006+)"]
-        VTX["Intel VT-x / AMD-V<br>Virtualisation CPU native"]
-        NPT["EPT/NPT<br>Pagination mémoire"]
-        SRIOV["SR-IOV<br>Accès direct réseau"]
-        NVME["NVMe Virtualization<br>Multi-namespace"]
-    end
-    
-    %% Connections with explanations
-    CPU -->|"Accélération"| VTX
-    RAM -->|"Page Tables"| NPT
-    NET -->|"Direct I/O"| SRIOV
-    DISK -->|"Storage I/O"| NVME
-    
-    %% Styling
-    classDef hw fill:#f9f,stroke:#333,stroke-width:2px;
-    class VTX,NPT,SRIOV,NVME hw;
+H[Hyperviseur] --> V[Machines Virtuelles]
+V --> R[Ressources Virtuelles]
+
+R --> CPU[vCPU]
+R --> RAM[vRAM]
+R --> DISK[vDisk]
+R --> NET[vNIC]
 ```
 
+::: callout-tip
+Une machine virtuelle **embarque un OS complet**.
+:::
 
 ### Hyperviseurs et Technologies
 
 :::: {.columns}
 ::: {.column width="50%"}
-- **CPU**: Intel VT-x / AMD-V
-  - Instructions de virtualisation natives
-  - Performance proche du natif
 
-- **RAM**: EPT/NPT (Nested Paging)
-  - Tables de pages imbriquées
+* **CPU** : Intel VT-x / AMD-V
 
-- **I/O**: Technologies d'accès direct
-  - SR-IOV (réseau)
-  - NVMe-oF (stockage)
+* **Mémoire** : EPT / NPT
 
-- **Storage**: Solutions avancées
-  - Fichier (VMDK, VHD, QCOW2)
-  - Direct (Raw Device Mapping)
-  - SAN (FC, iSCSI, NVMe-oF)
+* **I/O** : SR-IOV, NVMe-oF
+
+* **Stockage** : VMDK, QCOW2, SAN
 :::
 ::: {.column width="50%"}
-  - **Type 1 (Bare Metal)**
-    - Direct sur hardware
-    - Ex: ESXi, Hyper-V
-    - Performance ++
 
-  - **Type 2 (Hosted)**
-    - Sur OS existant
-    - Ex: VirtualBox, VMware Workstation, Parallels, ...
-    - Simplicité ++
+* **Type 1 (Bare Metal)**
+
+  * Direct sur le matériel
+  * Performances élevées
+
+* **Type 2 (Hosted)**
+
+  * Sur OS existant
+  * Simplicité d’usage
 :::
 ::::
+
+
 
 ## Des Machines Virtuelles
 
 ```{mermaid}
 graph TD
-    HW[Hardware<br>64GB RAM, 16 cores] --> ESX[VMware ESXi 7.0]
-    
-    ESX --> VM1[VM1: Ubuntu 22.04<br>8GB RAM, 4 cores]
-    ESX --> VM2[VM2: Ubuntu 22.04<br>8GB RAM, 4 cores]
-    ESX --> VM3[VM3: Windows Server 2019<br>16GB RAM, 4 cores]
-    
-    VM1 --> ENV1[Java 17 + Spring Boot 3.x + Maven + <br>PostgreSQL 14]
-    VM2 --> ENV2[Java 17 + Spring Boot 3.x + Maven + <br>PostgreSQL 14]
-    VM3 --> ENV3[.NET Framework 4.8<br>IIS + SQL Server 2019]
-    
-    ENV1 --> APP1[Order Service - Port 8080]
-    ENV2 --> APP2[Weather Service - Port 8080]
-    ENV3 --> APP3[Legacy .NET App - Port 80]
-
-    style HW fill:#f9f,stroke:#333,stroke-width:2px
-    style ESX fill:#bbf,stroke:#333,stroke-width:2px
-    style VM3 fill:#87CEEB,stroke:#333
-    style ENV3 fill:#87CE99,stroke:#333
-    style APP3 fill:#8799EB,stroke:#333
-
-    classDef duplicate fill:#ffcccc,stroke:#ff0000,stroke-width:2px
-    class VM1,VM2,ENV1,ENV2 duplicate
+HW[Hardware] --> ESX[Hyperviseur]
+ESX --> VM1[VM Linux]
+ESX --> VM2[VM Linux]
+ESX --> VM3[VM Windows]
 ```
 
 ### Bilan sur les Machines Virtuelles
 
 :::: {.columns}
 ::: {.column width="50%"}
-- **Avantages**
-  - Isolation complète
-  - Meilleure utilisation des ressources
-  - Snapshot et migration facilités
+**Avantages**
+
+* Isolation forte
+* Snapshots
+* Migration
 :::
 ::: {.column width="50%"}
-- **Inconvénients**
-  - Taille importante (OS complet)
-  - Démarrage lent
-  - Consommation mémoire élevée
-  - Gestion complexe
+**Inconvénients**
+
+* OS complet par VM
+* Démarrage lent
+* Consommation mémoire
 :::
 ::::
 
-## L'Émergence des Conteneurs (2010+)
 
-- **Containers**: Isolation des processus
-- Les conteneurs s'appuient sur des fonctionnalités du noyau Linux:
 
-  1. **Namespaces** (depuis 2002)
-    - PID Namespace: Isolation des processus
-    - Network Namespace: Isolation réseau
-    - Mount Namespace: Points de montage isolés
-    - UTS Namespace: Hostname et domaine isolés
+## L’Émergence des Conteneurs (2010+)
 
-  2. **Control Groups (cgroups)** (2006)
-    - Limitation des ressources
-    - Prioritisation
-    - Comptabilisation
-    - Contrôle des ressources
+> Les conteneurs ne virtualisent pas une machine,
+> mais **isolent des processus**.
 
-### Chronologie Historique
+### Fonctionnalités clés du noyau Linux
+
+1. **Namespaces**
+
+   * PID, Network, Mount, UTS
+
+2. **cgroups**
+
+   * Limitation CPU
+   * Limitation mémoire
+   * Comptabilisation
+
+
+::: callout-tip
+Un conteneur est une **illusion contrôlée par le noyau**.
+:::
+
+### Chronologie
 
 ```{mermaid}
 timeline
-    section Fondations
-        2000 : FreeBSD Jails
-             : Premier système d'isolation
-    section Linux
-        2007 : Control Groups 
-             : Base technique Linux
-        2008 : LXC (Linux Containers)
-             : Première implémentation
-    section Revolution
-        2013 : Docker
-             : Démocratisation
-        2017 : Kubernetes
-             : Orchestration Cloud Native
+  2000 : FreeBSD Jails
+  2007 : cgroups
+  2008 : LXC
+  2013 : Docker
+  2017 : Kubernetes
+  2020 : OCI Standards
 ```
+
+## Machines Virtuelles vs Conteneurs
+
+| Critère   | VM         | Conteneur    |
+|-----------|:-----------|:-------------|
+| Isolation | Matérielle | Noyau        |
+| OS        | Complet    | Partagé      |
+| Démarrage | Minutes    | Secondes     |
+| Taille    | Go         | Mo           |
+| Usage     | Legacy     | Cloud-native |
+
+
+::: callout-tip
+VM = virtualisation de **machine**
+Conteneur = virtualisation de **processus**
+:::
+
+
+## Philosophie et grands principes des conteneurs
+
+> Les conteneurs sont une **approche d’isolation de processus** plutôt qu’une virtualisation de machine.
+
+### Principes clés
+
+- **Isolation**
+  Chaque conteneur a son propre espace de processus, réseau et système de fichiers.
+
+- **Légèreté**
+  Pas d’OS complet : seulement les dépendances nécessaires à l’application.
+
+- **Immutabilité**
+  Une image est un artefact immuable : le même contenu donne le même conteneur.
+
+- **Éphémérité**
+  Un conteneur est conçu pour être **démarré, arrêté, détruit** rapidement.
+
+- **Portabilité**
+  Une image fonctionne de manière identique partout (dev, test, prod, cloud).
+
+### Message central
+
+> Un conteneur est une **unité de déploiement** :
+> un processus isolé, reproductible, portable et facilement orchestrable.
+
 
 ## Docker et Conteneurs
 
-- Docker a permis de populariser les conteneurs
-- Docker a standardisé l'utilisation des conteneurs en apportant:
-  1. Format d'image unifié
-  2. Système de build reproductible (Dockerfile)
-  3. Système de distribution (Docker Hub)
-  4. Interface simple et cohérente
-- D'autres solutions ont émergé:
-  - Podman,  ...
- 
-## Docker et les standards OCI
+* Docker popularise les conteneurs
+* Il fournit :
 
-- Docker Inc. a lancé le projet Docker en 2013
-- Standardisation des conteneurs par l'Open Container Initiative (OCI) en 2015
-  - **Runtime Specification**: Comment exécuter un conteneur
-  - **Image Specification**: Format standard d'images
-  - **Distribution Specification**: Distribution d'images
+  * Un format d’image
+  * Un système de build
+  * Un registre
+  * Une CLI simple
 
-## Pourquoi les conteneurs ?
 
-:::: {.columns}
-::: {.column width="50%"}
-- Défis Modernes
-  - **Complexité Applicative**
-    - Microservices distribués
-    - Couches techniques multiples (front, back, data)
-    - Frameworks et langages variés
-    - Intégration cloud native
-
-  - **Challenges DevOps**
-    - "Works on my machine"
-    - Temps de déploiement
-    - Evolution et historisation de l'architecture
-    - Coûts infrastructure
+::: callout-warning
+Docker n’est pas le conteneur
+Docker est un **outil** basé sur des standards.
 :::
-::: {.column width="50%"}
-- Solutions Conteneurs
-  - **Bénéfices Techniques**
-    - Isolation garantie
-    - Démarrage rapide
-    - Densité élevée par serveur
 
-  - **Avantages Business**
-    - Portabilité multi-cloud
-    - Time-to-market réduit
-    - Meilleur retour sur investissement (ROI) de l'infrastructure
-:::
-::::
+
+## Docker et standards OCI
+
+* Standardisation en 2015 (OCI)
+
+  * Image Specification
+  * Runtime Specification
+  * Distribution Specification
+
 
 ## Concepts Fondamentaux
 
 :::: {.columns}
 ::: {.column width="50%"}
-- Images
-  - **Définition**
-    - Template read-only
-    - Format OCI standard
-    - Distribuable et portable
 
-  - **Architecture**
-    - Metadata et système de fichiers
-    - Système de couches (Union filesystem)
-    - Cache optimisé
+**Image**
+
+* Template immuable
+* Lecture seule
+* Distribuable
+* Couches empilées
 :::
 
 ::: {.column width="50%"}
-- Containers
-  - **Runtime**
-    - Ensemble de Processus isolés
-    - Ressources limitées
-    - Réseau dédié
 
-  - **Persistance**
-    - État éphémère
-    - Volumes externes
+**Conteneur**
+
+* Processus isolé
+* Ressources limitées
+* État éphémère
 :::
 ::::
 
-## Utilisation d'une image
-
-- Une image peut être éxecutée pour créer un ou plusieurs conteneurs.
-- Utilisation d'une image Nginx pour créer un conteneur qui héberge un server web
+## Utilisation d’une image
 
 ```bash
-# Creation d'un container Nginx
-#   --detach   : Mode daemon (background)
-#   --name     : Nom unique du container
-#   --volume   : Mount point local:container
-#   --publish  : Port mapping host:container
 docker run --detach \
-  --name my_web_server nginx \
+  --name my_web_server \
+  --publish 8080:80 \
   --volume /var/www:/usr/share/nginx/html \
-  --publish 8080:80
+  nginx
 ```
 
-### Création d'une image
+### Ce que fait réellement `docker run`
 
-- Une image peut être créée à partir d'un script `Dockerfile` et de fichiers sources
+1. Télécharge l’image
+2. Crée un FS isolé
+3. Configure réseau et volumes
+4. Lance le processus principal
+
+## Création d’une image
+
 ```dockerfile
 FROM python:3.9-slim
 
@@ -317,244 +340,78 @@ COPY . .
 CMD ["python", "app.py"]
 ```
 
-- Le script peut être versionné avec Git (Infrastucture as Code)
-- Création de l'image avec `docker build`
-
 ```bash
 docker build -t myapp:0.1.0 .
 ```
 
-### Gestion 
+::: callout-tip
+Une image n’est pas une VM
+Elle contient uniquement ce qui est nécessaire à l’application.
+:::
 
-:::: {.columns}
-::: {.column width="50%"}
+## Gestion de base
 
 ```bash
-# Télécharger une image
-docker image pull nginx:latest
-
-# Lister les images
+docker image pull nginx
 docker image ls
-
-# Supprimer une image
-docker image rm nginx
+docker container ls -a
+docker container rm web
 ```
-:::
-::: {.column width="50%"}
+
+## Shell et inspection
 
 ```bash
-# Liste des conteneurs
-docker container ls  # actifs
-docker container ls -a  # tous
-
-# Cycle de vie
-docker container start/stop/restart web
-docker container rm web  # suppression
+docker run -it ubuntu
+docker exec -it web bash
+docker logs web
+docker stats
 ```
-:::
-::::
 
-### Options Communes `run`
-
-| Option | Usage | Exemple |
-|--------|--------|---------|
-| -d | détaché | --detach |
-| -p | ports | -p 8080:80 |
-| -v | volumes | -v /host:/container |
-| -e | variables | -e DB_HOST=localhost |
-| --name | nommer | --name myapp |
-| --rm | auto-suppression | --rm |
-
-
-## Shell Interactif
-
-- execution d'un shell dans un nouveau conteneur
-
-  ```bash
-  docker run -it ubuntu # commande par défaut de cette image (bash)
-  docker run -it ubuntu sh # commande alternative
-  docker run -it ubuntu ls / # commande spécifique
-  ```
-
-- Une commande peut être exécutée dans un conteneur en cours d'exécution
-- execution d'un shell dans un conteneur existant
-
-  ```bash
-  docker exec -it webserver bash
-  ```
-
-## Inspection et Débug
+## Nettoyage
 
 ```bash
-# Logs conteneur
-docker container logs web
-docker container logs -f web  # temps réel
-
-# Processus conteneur
-docker container top web
-
-# Stats ressources
-docker container stats
-
-# Inspection détaillée
-docker container inspect web
-
-# Shell dans conteneur
-docker container exec -it web bash
+docker system prune
+docker system prune -a
 ```
 
-## Commandes de Nettoyage Docker
+## Composants standards
 
-:::: {.columns}
-::: {.column width="70%"}
-
-- Nettoyage par Type
-
-```bash
-# Containers
-docker container prune    # Supprime containers arrêtés
-docker container rm -f    # Force suppression container actif
-
-# Images
-docker image prune        # Supprime images non utilisées
-docker image prune -a     # Supprime toutes images non utilisées
-
-# Volumes
-docker volume prune       # Supprime volumes non attachés
-
-# Networks
-docker network prune      # Supprime réseaux non utilisés
+```text
+Docker CLI
+   ↓
+Docker Engine
+   ↓
+containerd
+   ↓
+runc
+   ↓
+Linux Kernel
 ```
 
-- Nettoyage Global
+## Orchestration (aperçu)
 
-```bash
-# Nettoyage complet système
-docker system prune       # Containers + Images + Networks
-docker system prune -a    # Tout + Images non utilisées
-docker system prune --volumes  # Tout + Volumes
-```
-:::
-::: {.column width="30%"}
-- Options Communes
-  - **--force, -f**: Sans confirmation 
-  - **--all, -a**: Tout supprimer
-  - **--filter**: Filtrer ressources
-:::
-::::
+* **Docker Compose**
 
-## Composants Standards
+  * Développement
+  * Applications simples
 
-| Composant | Définition | Fonctions | Exemples |
-|-----------|------------|------------|----------|
-| Container<br>Engine | Interface haut niveau pour gérer containers | • Build et Run<br>• Network et Storage<br>• Gestion Images | • **Docker Engine**: Standard<br>• **Podman**: Sans daemon<br>• **CRI-O**: K8s native |
-| Container<br>Runtime | Couche d'exécution des containers | • **High-level**:<br>- Gestion images<br>- Networking<br>• **Low-level**:<br>- Isolation<br>- Resources | • **High**: containerd, CRI-O<br>• **Low**: runc, crun |
-| Registry | Stockage et distribution d'images | • Push/Pull images<br>• Scanning sécurité<br>• Authentification | • **Public**: DockerHub, GHCR<br>• **Private**: Harbor, GitLab |
+* **Kubernetes**
 
-### Exemple avec Docker
+  * Production
+  * Scalabilité
+  * Résilience
 
-```{zsh}
-#| output: true
-#| echo: false
-
-# Get API version
-CLIENT_API=$(docker version --format '{{.Client.APIVersion}}')
-
-# Get Engine version
-ENGINE_VERSION=$(docker version --format '{{.Server.Version}}')
-
-# Get containerd version
-CONTAINERD_VERSION=$(docker version --format '{{range .Server.Components}}{{if eq .Name "containerd"}}{{.Version}}{{end}}{{end}}')
-
-# Get runc version
-RUNC_VERSION=$(docker version --format '{{range .Server.Components}}{{if eq .Name "runc"}}{{.Version}}{{end}}{{end}}')
-
-# Display tree format
-echo "Docker Version"
-echo "│"
-echo "├── Client (Docker CLI)"
-echo "│   └── API version: $CLIENT_API"
-echo "│"
-echo "└── Server (Docker Engine)"
-echo "    ├── Engine: $ENGINE_VERSION"
-echo "    ├── containerd: $CONTAINERD_VERSION"
-echo "    └── runc: $RUNC_VERSION"
-```
-
-## Orchestration
-
-- Docker Compose
-  - Outil simple pour définir et gérer des applications multi-conteneurs
-  - Utilisation d'un fichier `docker-compose.yml`
-  - Définition des services, réseaux et volumes
-  - Utile pour le développement et les tests
-- Kubernetes
-  - Orchestration de conteneurs à grande échelle
-  - Gestion des ressources, du déploiement et de la scalabilité
-  - Utilisation en production
-
-### Exemple avec variables d'environnement dans `.env`
-
-
-:::: {.columns}
-::: {.column width="70%"}
-
-```{.yaml}
-services:
-  web:
-    image: nginx:alpine
-    ports:
-      - "${NGINX_PORT:-8080}:80"
-    volumes:
-      - ./app:/usr/share/nginx/html
-    depends_on:
-      - db
-    environment:
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-
-  db:
-    image: mysql:8
-    environment:
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${DB_NAME}
-      - MYSQL_USER=${DB_USER}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
-    volumes:
-      - db_data:/var/lib/mysql
-
-volumes:
-  db_data:
-```
-:::
-::: {.column width="30%"}
-
-```zsh
-NGINX_PORT=8080
-DB_USER=myapp
-DB_PASSWORD=secret123
-DB_ROOT_PASSWORD=root123
-DB_NAME=myapp
-```
-
-:::
-::::
+> Docker Compose ≠ Kubernetes “en petit”
 
 # Conclusion
 
-- Impact sur le Développement
-  - Standardisation du déploiement applicatif
-  - Isolation et reproductibilité garanties
-  - Cycles de développement accélérés
+* Les conteneurs complètent la virtualisation
+* Ils apportent rapidité, portabilité et standardisation
+* Docker est un point d’entrée, pas une finalité
+* Kubernetes s’impose comme standard d’orchestration
 
-- Bénéfices Opérationnels
-  - Gestion simplifiée des infrastructures
-  - Portabilité multi-cloud native
-  - Réduction des coûts d'exploitation
 
-- Perspectives
-  - Adoption croissante des containers
-  - Kubernetes comme standard d'orchestration
-  - Evolution vers le Cloud Native
+::: callout-tip
+Un conteneur n’est pas un mini-serveur
+C’est un **processus isolé et maîtrisé**
+:::

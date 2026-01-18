@@ -7,13 +7,21 @@ description: |
   - Utilisation et gestion des conteneurs
   - Création d'images personnalisées
   - Orchestration avec Docker Compose
-  
+
+format:
+  html:
+    css:
+      - _quarto-utils/gallery-custom.css
+
 metadata-files:
-  - quarto-utils/index-listing.yml
+  - _quarto-utils/index-listing.yml
 
-listing: true
+listing:
+  id: gallery-listing
+  max-description-length: 200
 
-jupyter: java-lts
+jupyter: java
 ---
 
-
+<div id="gallery-listing">
+</div>

@@ -1,0 +1,292 @@
+---
+title: Containers Pratique 101
+subtitle: Découvrir les conteneurs avec Docker
+description: Exercices pratiques pour découvrir Docker à travers des cas simples et progressifs.
+image: _quarto-utils/MyMedia/images/optimized/ian-taylor-jOqJbvo1P9g-unsplash_docker-400.webp
+
+jupyter: zsh
+
+programs:
+  - M1-InfoMath [DEV-ADV]
+  - CNAM-I [PO43]
+
+categories:
+  - Practice
+  - Containers
+  - Docker
+
+provide_notes: true
+provide_slides: false
+
+---
+
+## Objectif du TP
+
+> Donner le goût des conteneurs en pratiquant :
+>
+> - Les commandes essentielles : `run`, `ps`, `stop`, `rm`
+> - Les ports, volumes et réseaux
+> - Le mode interactif (exploration)
+> - La création d’une image simple avec un Dockerfile
+
+Ce TP **n’est pas un TP de production**.
+Il vise à construire une **intuition correcte** des conteneurs.
+
+---
+
+## Prérequis
+
+- Docker installé et fonctionnel (`docker version` OK)
+- Accès à un terminal (bash/zsh)
+- Éditeur de texte minimal
+
+> En cas de problème local :
+> https://labs.play-with-docker.com/
+
+---
+
+## Setup initial
+
+```bash
+mkdir -p ~/tp0 && cd ~/tp0
+```
+
+Nettoyage optionnel des restes d’exécutions précédentes :
+
+```bash
+docker rm -f tp0-nginx tp0-app 2>/dev/null || true
+docker network rm tp0-net 2>/dev/null || true
+docker image rm tp0-app:0.1 2>/dev/null || true
+```
+
+---
+
+## Exercice 1 — Lancer un premier conteneur
+
+### Objectif
+
+Voir un conteneur **en cours d’exécution**.
+
+La commande suivante lance un conteneur `nginx` (serveur web) en arrière-plan,
+nommé `tp0-nginx`, exposant le port 80 du conteneur sur le port 8080 de l’hôte :
+
+```bash
+docker run -d --name tp0-nginx -p 8080:80 nginx:stable
+```
+
+Vérifier qu’il est bien lancé :
+
+```bash
+docker ps
+```
+
+Il est accessible via le port 8080 de l’hôte avec un navigateur web ou `curl` :
+
+Tester :
+
+```bash
+curl http://localhost:8080 | head
+```
+
+Les logs du conteneur peuvent être consultés avec :
+
+```bash
+docker logs tp0-nginx --tail 10
+```
+
+Il peut être arrêté avec :
+
+```bash
+docker stop tp0-nginx
+```
+
+et supprimé avec :
+
+```bash
+docker rm -f tp0-nginx
+```
+
+> Un conteneur = un service/processus isolé
+
+---
+
+## Exercice 2 — Volumes : partager des fichiers
+
+### Objectif
+
+Relier le système hôte et le conteneur.
+
+```bash
+mkdir -p www
+echo "<h1>Hello from host</h1>" > www/index.html
+```
+
+Lancer nginx avec volume :
+
+```bash
+docker run -d \
+  --name tp0-nginx \
+  -p 8080:80 \
+  -v "$PWD/www":/usr/share/nginx/html:ro \
+  nginx:stable
+```
+
+Modifier `www/index.html` sur l’hôte et rafraîchir la page ou relancer `curl`.
+
+Nettoyage :
+
+```bash
+docker stop tp0-nginx
+docker rm -f tp0-nginx
+```
+
+> Les données ne vivent pas dans le conteneur, il doit être éphémère
+
+---
+
+## Exercice 3 — Mode interactif et installation
+
+Il est important de **comprendre la différence entre un conteneur et une image**.
+Il est possible d'executer des conteneurs en mode interactif pour explorer
+leur contenu et interagir avec eux.
+
+**Il est déconseillé d’installer des logiciels directement dans un conteneur en production.**
+
+```bash
+docker run -it --rm ubuntu:22.04 bash
+```
+
+Dans le conteneur :
+
+```bash
+cat /etc/os-release
+uname -a
+echo "Hello from inside the container" > /tmp/hello.txt
+apt update
+apt install -y curl
+curl https://example.com
+```
+
+Il est possible de tout faire **dans le conteneur**  car **on est root par défaut**.
+
+Pour quitter le conteneur :
+
+```bash
+exit
+```
+
+Relancer :
+
+```bash
+docker run -it --rm ubuntu:22.04 bash
+cat /tmp/hello.txt   # ❌ disparu
+curl https://example.com  # ❌ curl non installé
+```
+
+> Ce qui n’est pas dans une image est perdu
+
+---
+
+## Exercice 4 — Créer une image simple
+
+Pour rendre l’installation reproductible et persistante, il faut créer une image.
+L'approche standard est d’écrire un fichier **Dockerfile** décrivant l’image.
+
+Créer `Dockerfile` :
+
+```dockerfile
+FROM ubuntu:22.04
+RUN apt update && apt install -y curl
+CMD ["bash"]
+```
+
+Construire :
+
+```bash
+docker build -t tp0-ubuntu-curl .
+```
+
+Tester :
+
+```bash
+docker run -it --rm tp0-ubuntu-curl
+curl https://example.com
+```
+
+---
+
+## Exercice 5 — Construire une image applicative
+
+En suivant la même approche, il est possible de
+créer une image contenant une application Python simple.
+
+Créer une structure de dossiers `app/` avec les fichiers suivants :
+
+`app/app.py` :
+
+Une application serveur Web minimale :
+
+```python
+from http.server import SimpleHTTPRequestHandler, HTTPServer
+
+server = HTTPServer(('0.0.0.0', 5000), SimpleHTTPRequestHandler)
+print("Listening on 5000")
+server.serve_forever()
+```
+Un fichier Dockerfile
+
+`app/Dockerfile` :
+
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY app.py .
+CMD ["python", "app.py"]
+```
+
+Construire, lancer et tester l’application :
+
+```bash
+docker build -t tp0-app:0.1 ./app
+docker run -d --name tp0-app -p 5000:5000 tp0-app:0.1
+curl http://localhost:5000
+```
+
+Nettoyage :
+
+```bash
+docker stop tp0-app
+docker rm -f tp0-app
+```
+
+---
+
+## Exercice 6 — (Optionnel) Réseaux Docker
+
+Il est de faire fonctionner plusieurs conteneurs ensemble via un réseau Docker.
+
+
+```bash
+docker network create tp0-net
+docker run -d --name tp0-app --network tp0-net tp0-app:0.1
+docker run --rm --network tp0-net curlimages/curl http://tp0-app:5000
+```
+
+Nettoyage :
+
+```bash
+docker rm -f tp0-app
+docker network rm tp0-net
+```
+
+---
+
+## Synthèse
+
+* Un conteneur est **éphémère**
+* Une image est **reproductible**
+* Le mode interactif sert à **explorer**
+* Le Dockerfile est la **source de vérité**
+
+> Un conteneur n’est pas un mini-serveur
+> C’est un **processus isolé, décrit par du code**

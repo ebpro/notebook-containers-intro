@@ -1,0 +1,446 @@
+---
+title: 'Conteneurs: Notions de base (Usage)'
+subtitle: 'Cycle de vie, volumes, réseaux, ressources, bonnes pratiques'
+description: 'Utilisation des conteneurs : cycle de vie, volumes, réseaux, ressources, bonnes pratiques.'
+image: _quarto-utils/MyMedia/images/optimized/ian-taylor-jOqJbvo1P9g-unsplash_docker-400.webp
+
+jupyter: zsh
+tools:
+  - docker
+  - git
+
+programs:
+  - M1-InfoMath [DEV-ADV]
+  - CNAM-I [PO43]
+
+categories:
+  - Lecture
+  - Containers
+  - Docker
+
+provide_notes: true
+provide_slides: true
+---
+
+```{zsh}
+#| output: false
+#| echo: false
+
+docker system prune --force
+
+## Stop all running containers at once
+#docker stop $(docker ps -q)
+## Clean up any existing containers, images, volumes
+#docker system prune --all --volumes --force
+```
+
+## Objectifs du cours
+
+> À l’issue de ce cours, vous devez être capables de :
+
+* Manipuler des conteneurs Docker (run, stop, start, rm)
+* Utiliser les volumes pour la persistance
+* Connecter des conteneurs via des réseaux
+* Exposer des ports vers l’hôte
+* Gérer les ressources d’un conteneur (CPU / RAM / PIDs)
+* Comprendre et appliquer les bonnes pratiques d’usage
+
+## Rappel rapide
+
+Un **conteneur** est une instance d’une **image**.
+L’image est un artefact immuable (voir le cours “Image”).
+Le conteneur est un **processus isolé** qui tourne sur le noyau de l’hôte.
+
+::: callout-tip
+* **Image** = template immuable
+* **Conteneur** = exécution d’un processus isolé
+:::
+
+## Les images
+
+- Une image contient tout le nécessaire pour exécuter une application (code, runtime, bibliothèques, dépendances, fichiers de configuration).
+- Chaque couche est en lecture seule, sauf la dernière (couche de conteneur).
+- Les images sont stockées dans des registres (Docker Hub, GitHub Container Registry, etc.).
+- Les images sont identifiées par un nom : `[registre/]nom[:tag]` (ex: `docker.io/library/nginx:1.23`).
+  - Si le registre n’est pas spécifié, Docker Hub est utilisé par défaut.
+  - Si le tag n’est pas spécifié, `latest` est utilisé par défaut.
+  - Une image peut être référencée par son **digest** (SHA256).
+  - Une image peut avoir plusieurs tags.
+    - Ex: `nginx:1`, `nginx:1.29`,`nginx:mainline`, `nginx:latest`, `nginx:f3524ef8b874` peuvent référencer la même image.
+- Une image est destinée à une plateforme spécifique (architecture CPU, OS).
+  - Ex: `linux/amd64`, `linux/arm64/v8`, `windows/amd64`.
+  - Il est possible de créer des images multi-plateformes (multi-arch).
+
+## Cycle de vie d’un conteneur
+
+**Exécution simple**
+
+- La commande `docker run` crée et démarre un conteneur à partir d’une image.
+- Le conteneur s’arrête lorsque le processus principal se termine (`--rm` pour supprimer automatiquement après).
+- Le format général est `docker run [OPTIONS] IMAGE [COMMAND] [ARG...]`.
+- Si l'image n'est pas présente localement, Docker la télécharge depuis le registre.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --rm alpine:3.18 echo "Hello"
+```
+
+
+```{zsh}
+#| output: false
+#| echo: false
+
+docker() {
+  case "$1" in
+    build|pull|push|run)
+      command docker "$1" --quiet "${@:2}"
+      ;;
+    *)
+      command docker "$@"
+      ;;
+  esac
+}
+
+```
+
+### Conteneur en arrière-plan (`-d`)
+
+- La commande `docker run -d` démarre un conteneur en arrière-plan (détaché `--detach`).
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run -d --name my-nginx nginx:1.23
+```
+
+### Liste des conteneurs (`ps`)
+
+- La commande `docker ps` liste les conteneurs en cours d’exécution.
+- L’option `-a` liste tous les conteneurs (y compris arrêtés).
+- Chaque conteneur a un ID unique, un nom, un statut, des ports exposés, etc.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker ps
+```
+
+### Arrêter (`stop`) / démarrer (`start`) / supprimer (`rm`)
+
+- Le cycle de vie d’un conteneur inclut les états : démarré, arrêté, supprimé.
+- Lorsqu’un conteneur est arrêté, il reste sur le système jusqu’à sa suppression (`rm`).
+
+```{zsh}
+#| output: true
+#| echo: true
+docker stop my-nginx
+```
+```{zsh}
+#| output: true
+#| echo: true
+docker ps -a
+```
+```{zsh}
+#| output: true
+#| echo: true
+docker start my-nginx
+```
+```{zsh}
+#| output: true
+#| echo: true
+docker stop my-nginx
+```
+```{zsh}
+#| output: true
+#| echo: true
+docker rm my-nginx
+```
+
+### Exercice 1 (5 min)
+
+> Lancer un conteneur `alpine`, exécuter `uname -a`, puis le supprimer.
+
+---
+
+```{zsh}
+#| output: true
+#| echo: true
+MY_ALPINE_ID=docker run --name my-alpine alpine:3.18 uname -a
+docker rm ${MY_ALPINE_ID}
+```
+
+- L'option `--rm` peut être utilisée avec `docker run` pour supprimer automatiquement le conteneur après son arrêt.
+
+## Logs, exec et monitoring (10 min)
+
+- Les logs d’un conteneur sont accessibles via `docker logs`.
+- L'option `-f` permet de suivre les logs en temps réel.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --name my-nginx -d nginx:1.23
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker logs my-nginx
+# docker logs -f my-nginx
+```
+
+### Exécuter une commande dans un conteneur en cours
+
+- La commande `docker exec` permet d’exécuter des commandes dans un conteneur en cours d’exécution.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker exec my-nginx ls /usr/share/nginx/html
+```
+
+```{zsh}
+#| output: true
+#| echo: true
+docker stop my-nginx
+docker rm my-nginx
+```
+
+### Monitoring
+
+- La commande `docker stats` affiche l’utilisation des ressources (CPU, mémoire, réseau, disques) des conteneurs en cours d’exécution.
+- L'option `--no-stream` affiche une seule fois les statistiques.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker stats --no-stream
+```
+## Réseau
+
+- Chaque conteneur a une interface réseau virtuelle et une adresse IP.
+- Par défaut, les conteneurs sont connectés à un réseau bridge par défaut.
+- Il est possible de créer des réseaux custom pour isoler les conteneurs.
+- Les conteneurs sur le même réseau custom peuvent communiquer entre eux par **nom** (DNS interne).
+
+### Réseau par défaut (bridge)
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run -d --name c1 alpine sleep 3600
+docker run -d --name c2 alpine sleep 3600
+```
+
+```{zsh}
+#| output: false
+#| echo: false
+for cid in c1 c2; do
+  docker stop $cid
+  docker rm $cid
+done
+```
+
+### Réseau custom (bonne pratique)
+
+- Créer un réseau custom avec `docker network create`.
+- Lancer des conteneurs sur ce réseau avec `--network`.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker network create app-net
+docker run -d --name web --network app-net nginx:1.23
+docker run -d --name db  --network app-net redis:7.0.9
+docker run --rm --network app-net curlimages/curl:7.88.1 http://web
+```
+
+### Vérifier le réseau (Avancé)
+
+```{zsh}
+#| output: true
+#| echo: true
+docker network inspect app-net
+```
+
+### Communication conteneur → conteneur
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --rm --network app-net curlimages/curl:7.88.1 http://web
+```
+### Exercice 2 (Max 10 min)
+
+> Créer un réseau `mynet`, lancer deux conteneurs `alpine` nommés `a1` et `a2` sur ce réseau,
+> puis vérifier qu’ils se ping par nom.
+
+---
+
+## Port mapping
+
+- Chaque conteneur a son propre espace réseau isolé.
+- Il peut donc utiliser les mêmes ports en interne sans conflit.
+  - Ex: plusieurs conteneurs postgres peuvent écouter sur **leur** port 5432.
+- Pour exposer un service d’un conteneur vers l’hôte, utiliser `-p hôte:conteneur`.
+- Cela mappe un port de l’hôte vers un port du conteneur.
+  - Ex: `-p 8080:80` mappe le port 8080 de l’hôte vers le port 80 du conteneur.
+  - Attention aux conflits de ports sur l’hôte.
+  - Attention si docker tourne dans une VM (WSL, Docker Desktop) : le port est exposé sur la VM, pas directement sur l’hôte.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run -d --name web-port -p 8080:80 nginx:1.23
+```
+
+### Tester depuis l’hôte
+
+- Il est possible de tester l’accès au service exposé depuis l’hôte avec `curl` ou un navigateur.
+- Avec l'adresse `http://localhost:8080` si Docker est natif.
+- Avec l'adresse IP de la VM si Docker tourne dans une VM (ex: WSL, Docker Desktop).
+- A moins que Docker soit configuré pour exposer les ports vers l’hôte directement.
+
+```{zsh}
+#| output: true
+#| echo: true
+curl -I http://localhost:8080
+```
+
+### Accès conteneur -> hôte
+
+- Il est possible d’accéder à un service exposé sur l’hôte depuis un conteneur.
+- Utiliser `host.docker.internal` comme nom d’hôte.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run --rm --add-host=host.docker.internal:host-gateway \
+    curlimages/curl:7.88.1 http://host.docker.internal:8080
+```
+## Volumes : persistance
+
+- Les données dans un conteneur sont éphémères : elles disparaissent à l’arrêt/suppression du conteneur.
+- Pour persister les données, utiliser des volumes.
+- Un volume est un espace de stockage géré par Docker, indépendant du cycle de vie des conteneurs.
+- Les volumes peuvent être montés dans un conteneur avec `-v volume:chemin_dans_conteneur`.
+- Il existe deux types de volumes :
+  - **Bind mount** : mappe un répertoire de l’hôte vers un répertoire du conteneur.
+  - **Volume nommé** : volume géré par Docker, stocké dans l’espace de stockage Docker.
+
+### Bind mount (risky, dev)
+
+```zsh
+#| output: true
+#| echo: true
+mkdir -p /tmp/myapp
+echo "hello" > /tmp/myapp/index.html
+
+docker run --rm -v /tmp/myapp:/usr/share/nginx/html \
+  -p 8081:80 nginx:1.23
+```
+
+### Volume nommé (better, prod)
+
+```{zsh}
+#| output: true
+#| echo: true
+docker volume create pgdata
+
+docker run -d --name db \
+  -v pgdata:/var/lib/postgresql/data \
+  -e POSTGRES_PASSWORD=secret \
+  postgres:15.2
+```
+
+### Exercice de persistance
+
+* lancer Postgres sans volume → perdre les données
+* relancer avec volume → conserver les données
+
+Hint: regarder la page officielle Postgres Docker Hub pour le chemin des données. (see [https://hub.docker.com/_/postgres](https://hub.docker.com/_/postgres))
+
+**Exercice 3 (10 min)**
+
+> Lancer un conteneur Postgres avec volume, créer une table, arrêter et relancer, puis vérifier que les données sont toujours présentes.
+
+---
+
+## Gestion des ressources (Avancé)
+
+- Docker permet de limiter les ressources utilisées par un conteneur.
+- Cela inclut la mémoire, le CPU, et le nombre de PIDs.
+
+**Limiter CPU / mémoire / PIDs**
+
+```{zsh}
+#| output: true
+#| echo: true
+docker run -d --name webapp \
+  --memory="512m" \
+  --cpus="0.5" \
+  --pids-limit=50 \
+  nginx:alpine
+```
+
+### Modifier les limites d’un conteneur existant
+
+- Il est possible de modifier les limites d’un conteneur en cours d’exécution avec `docker update`.
+
+```{zsh}
+#| output: true
+#| echo: true
+docker update --memory="1g" --cpus="1" webapp
+```
+## Bonnes pratiques d’usage
+
+* **Nettoyage régulier**
+
+```{zsh}
+#| output: true
+#| echo: true
+docker container prune --force
+docker image prune --force
+docker volume prune --force
+```
+
+* **Éviter `latest` en production**
+
+  * Utiliser des tags de version stables.
+
+* **Ne pas stocker de secrets dans l’environnement**
+
+  * Préférer `--secret` (ou mécanismes externes).
+
+* **Logs sur stdout/stderr**
+
+  * Les conteneurs doivent produire des logs vers la sortie standard.
+
+## Atelier final
+
+**Objectif**
+
+Assembler une application simple avec :
+
+* un serveur web
+* une base de données
+* un réseau custom
+* un volume
+
+### Exemple
+
+* `nginx` + `postgres` sur `app-net`
+* `nginx` expose un service web
+* `postgres` stocke les données dans un volume
+
+* **Nettoyage final**
+
+```{zsh}
+#| output: true
+#| echo: true
+docker stop web-port webapp db
+docker rm web-port webapp db
+docker network rm app-net
+docker volume rm pgdata
+```

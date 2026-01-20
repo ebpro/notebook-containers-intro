@@ -1,0 +1,108 @@
+---
+title: Message Queue avec RabbitMQ
+description: Exercices pratiques sur l'utilisation de RabbitMQ avec Docker.
+categories:
+    - Containers
+    - Docker
+    - Python
+    - RabbitMQ
+    - AMQP
+    - Exercices
+provide_notes: true
+provide_slides: false
+jupyter: python3
+---
+
+## Introduction
+
+La programmation asynchrone distribuée permet de construire des systèmes où les composants communiquent de manière non-bloquante via des messages.
+Cette approche offre:
+
+- Découplage entre les composants
+- Meilleure résilience
+- Passage à l'échelle facilité
+- Traitement asynchrone des tâches
+
+RabbitMQ est un serveur de messagerie open source qui implémente le protocole AMQP (Advanced Message Queuing Protocol).
+Écrit en Erlang et distribué sous licence Mozilla Public License, il est largement utilisé dans les applications distribuées pour la communication asynchrone.
+
+## Objectifs
+
+Dans cet exercice pratique, nous allons:
+1. Déployer un serveur RabbitMQ avec Docker
+2. Créer un producteur de messages en Python
+3. Créer un consommateur de messages en Python
+4. Observer les échanges de messages
+
+
+## Étape 1: Mise en place de RabbitMQ
+
+1. Créer un réseau Docker dédié:
+```bash
+docker network create mq-net
+```
+
+2. Démarrer le serveur RabbitMQ:
+```bash
+docker run -d --name rabbitmq \
+    --network mq-net \
+    -p 5672:5672 -p 15672:15672 \
+    rabbitmq:management-alpine
+```
+
+## Étape 2: Création du Producteur
+
+1. Créer un Dockerfile pour le producteur:
+```dockerfile
+FROM python:3.9-alpine
+RUN pip install --no-cache-dir pika
+ENTRYPOINT ["python", "-c"]
+```
+
+2. Construire et exécuter le producteur:
+```bash
+docker build -t mq-producer .
+docker run --rm --network mq-net mq-producer \
+    'import pika; \
+     connection = pika.BlockingConnection(pika.ConnectionParameters("rabbitmq")); \
+     channel = connection.channel(); \
+     channel.queue_declare(queue="hello"); \
+     channel.basic_publish(exchange="", routing_key="hello", body="Hello World!")'
+```
+
+## Étape 3: Création du Consommateur
+
+1. Utiliser la même image pour le consommateur:
+```bash
+docker run --rm --network mq-net mq-producer \
+    'import pika; \
+     connection = pika.BlockingConnection(pika.ConnectionParameters("rabbitmq")); \
+     channel = connection.channel(); \
+     channel.queue_declare(queue="hello"); \
+     channel.basic_consume(queue="hello", \
+         on_message_callback=lambda ch, method, properties, body: print(body), \
+         auto_ack=True); \
+     channel.start_consuming()'
+```
+
+## Points à comprendre
+
+1. Architecture de messagerie
+   - Producteur/Consommateur
+   - Files d'attente
+   - Protocole AMQP
+
+2. Communication inter-conteneurs
+   - Réseau Docker dédié
+   - Résolution DNS par nom de service
+
+3. Bonnes pratiques Docker
+   - Images légères (Alpine)
+   - Conteneurs éphémères
+   - Isolation réseau
+
+## Exercices bonus
+
+1. Ajouter plusieurs consommateurs
+2. Implémenter différents types d'échange
+3. Ajouter de la persistance des messages

@@ -1,0 +1,849 @@
+Quarto version: 1.8.26
+projectContext: Found Quarto project in /home/jovyan/work
+Looking for Python binaries and Jupyter capabilities.
+Checking QUARTO_PYTHON set to '/home/jovyan/miniforge3/bin/python3'
+Checking Jupyter capabilities for '/home/jovyan/miniforge3/bin/python3'
+[execProcess] /home/jovyan/miniforge3/bin/python3 /opt/quarto/quarto-1.8.26/share/capabilities/jupyter.py
+[execProcess] Success: true, code: 0
+Python found using QUARTO_PYTHON at '/home/jovyan/miniforge3/bin/python3'
+[execProcess] /home/jovyan/miniforge3/bin/python3 -m jupyter --paths --json
+[execProcess] Success: true, code: 0
+Loaded deno-dom-native
+Looking for Python binaries and Jupyter capabilities for language 'zsh'.
+Checking QUARTO_PYTHON set to '/home/jovyan/miniforge3/bin/python3'
+Checking Jupyter capabilities for '/home/jovyan/miniforge3/bin/python3'
+[execProcess] /home/jovyan/miniforge3/bin/python3 /opt/quarto/quarto-1.8.26/share/capabilities/jupyter.py
+[execProcess] Success: true, code: 0
+Python found using QUARTO_PYTHON at '/home/jovyan/miniforge3/bin/python3'
+
+Starting zsh kernel...[execProcess] /home/jovyan/miniforge3/bin/python3 /opt/quarto/quarto-1.8.26/share/jupyter/jupyter.py
+(Notebook read from cache)
+
+[execProcess] Success: true, code: 0
+Creating SassCache at /home/jovyan/work/.quarto/quarto-session-tempa134ee2354dee942/sass
+Returning SassCache at /home/jovyan/work/.quarto/quarto-session-tempa134ee2354dee942/sass
+SassCache.getOrSet(...)
+SassCache.getFromHash(hash=2106f3f19f2412a0b93ec49758a97a38, inputHash=e8c840cc67dc5e100e655fe924f9fd4a, force=undefined)
+  cache miss
+  cache miss, setting
+SassCache.setFromHash(2106f3f19f2412a0b93ec49758a97a38, e8c840cc67dc5e100e655fe924f9fd4a), ...
+[execProcess] /opt/quarto/quarto-1.8.26/bin/tools/x86_64/dart-sass/sass /home/jovyan/work/.quarto/quarto-session-tempa134ee2354dee942/545794306eff9463.scss /home/jovyan/work/.quarto/quarto-session-tempa134ee2354dee942/sass/2106f3f19f2412a0b93ec49758a97a38.css --style compressed --quiet --load-path=/opt/quarto/quarto-1.8.26/share/formats/html/bootstrap/dist/scss --load-path=/opt/quarto/quarto-1.8.26/share/formats/html/bslib/bslib-scss
+[execProcess] Success: true, code: 0
+Creating SassCache at /home/jovyan/.cache/quarto/sass
+Returning SassCache at /home/jovyan/.cache/quarto/sass
+SassCache.getOrSet(...)
+SassCache.getFromHash(hash=2dce1cc6c82594539e1579de68416b47, inputHash=99bfea54542b8558cbb95e6d75e80dfa, force=undefined)
+  cache hit
+  cache hit
+[NotebookContext]: Writing all notebooks to /home/jovyan/work/.quarto/quarto-session-tempa134ee2354dee942/8667df77a40d41ec.json
+-- Searching for R binary --
+Looking for 'Rscript' in QUARTO_R: undefined
+Looking for 'Rscript' in R_HOME: undefined
+Looking for 'Rscript' in PATH.
+[execProcess] which Rscript
+[execProcess] Success: false, code: 1
+Quarto did not find Rscript and will try to use it directly from the path.
+[1mpandoc --verbose --trace[22m
+  to: html
+  output-file: 00_containers_L_introduction.html
+  standalone: true
+  section-divs: true
+  html-math-method: mathjax
+  wrap: none
+  default-image-extension: png
+  variables: {}
+  
+[1mmetadata[22m
+  document-css: false
+  link-citations: true
+  lang: fr
+  author:
+    - name: Emmanuel BRUNO
+      email: emmanuel.bruno@univ-tln.fr
+      url: https://bruno.univ-tln.fr
+  institute:
+    - Université de Toulon
+    - LIS UMR CNRS 7020
+  affiliations:
+    - name: Université de Toulon
+    - name: LIS UMR CNRS 7020
+  date: last-modified
+  date-format: iso
+  license: CC BY-NC
+  extensions:
+    - _extensions/kazuyanagimoto/clean
+    - _extensions/grantmcdermott/clean
+  revealjs-plugins:
+    - verticator
+  title: Introduction aux Conteneurs
+  subtitle: Concepts et Historique de la Conteneurisation
+  description: Introduction aux technologies de conteneurisation et à Docker. Comprendre les différences entre machines virtuelles et conteneurs, et les principes fondamentaux des conteneurs.
+  image: _quarto-utils/MyMedia/images/optimized/ian-taylor-jOqJbvo1P9g-unsplash_docker-400.webp
+  jupyter: zsh
+  tools:
+    - docker
+    - git
+  programs:
+    - M1-InfoMath [DEV-ADV]
+    - CNAM-I [PO43]
+  categories:
+    - Lecture
+    - Containers
+    - Docker
+  provide_notes: true
+  provide_slides: true
+  
+[execProcess] /opt/quarto/quarto-1.8.26/bin/tools/x86_64/pandoc +RTS -K512m -RTS --defaults /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/quarto-defaults2faf68e4893f3c51.yml /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/quarto-input3b653a7bdc2ca6c.md --metadata-file /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/quarto-metadatad0cbaf7f6f1071eb.yml --verbose --trace --data-dir /opt/quarto/quarto-1.8.26/share/pandoc/datadir
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/template.patched from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/template.patched
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/metadata.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/metadata.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/styles.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/styles.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-block.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/title-metadata.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/_title-meta-author.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/toc.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/f0adda5e7dc814cd/toc.html
+[trace] Parsed [Plain [Str "Universit\233",Space,Str "de",Space,Str "Toulon at line 1
+[trace] Parsed [Plain [Str "LIS",Space,Str "UMR",Space,Str "CNRS",Space,Str at line 1
+[trace] Parsed [Plain [Str "Emmanuel",Space,Str "BRUNO"]] at line 1
+[trace] Parsed [Plain [Str "emmanuel.bruno@univ-tln.fr"]] at line 1
+[trace] Parsed [Plain [Str "Emmanuel",Space,Str "BRUNO"]] at line 1
+[trace] Parsed [Plain [Str "https://bruno.univ-tln.fr"]] at line 1
+[trace] Parsed [Plain [Str "Lecture"]] at line 1
+[trace] Parsed [Plain [Str "Containers"]] at line 1
+[trace] Parsed [Plain [Str "Docker"]] at line 1
+[trace] Parsed [Plain [Str "2026-01-18"]] at line 1
+[trace] Parsed [Plain [Str "iso"]] at line 1
+[trace] Parsed [Plain [Str "Introduction",Space,Str "aux",Space,Str "techno at line 1
+[trace] Parsed [Plain [Str "_extensions/kazuyanagimoto/clean"]] at line 1
+[trace] Parsed [Plain [Str "_extensions/grantmcdermott/clean"]] at line 1
+[trace] Parsed [Plain [Str "_quarto-utils/MyMedia/images/optimized/ian-tayl at line 1
+[trace] Parsed [Plain [Str "Universit\233",Space,Str "de",Space,Str "Toulon at line 1
+[trace] Parsed [Plain [Str "LIS",Space,Str "UMR",Space,Str "CNRS",Space,Str at line 1
+[trace] Parsed [Plain [Str "Universit\233",Space,Str "de",Space,Str "Toulon at line 1
+[trace] Parsed [Plain [Str "LIS",Space,Str "UMR",Space,Str "CNRS",Space,Str at line 1
+[trace] Parsed [Plain [Str "zsh"]] at line 1
+[trace] Parsed [Plain [Str "fr"]] at line 1
+[trace] Parsed [Plain [Str "CC",Space,Str "BY-NC"]] at line 1
+[trace] Parsed [Plain [Str "M1-InfoMath",Space,Str "[DEV-ADV]"]] at line 1
+[trace] Parsed [Plain [Str "CNAM-I",Space,Str "[PO43]"]] at line 1
+[trace] Parsed [Plain [Str "true"]] at line 1
+[trace] Parsed [Plain [Str "1.8.26"]] at line 1
+[trace] Parsed [Plain [Str "verticator"]] at line 1
+[trace] Parsed [Plain [Str "Concepts",Space,Str "et",Space,Str "Historique" at line 1
+[trace] Parsed [Plain [Str "Introduction",Space,Str "aux",Space,Str "Conten at line 1
+[trace] Parsed [Plain [Str "Table",Space,Str "des",Space,Str "mati\232res"] at line 1
+[trace] Parsed [Plain [Str "docker"]] at line 1
+[trace] Parsed [Plain [Str "git"]] at line 1
+[trace] Parsed [] at line 3
+[trace] Parsed [Header 2 ("objectifs-du-cours",[],[]) [Str "Objectifs",Spac at line 5
+[trace] Parsed [Para [Str "\192",Space,Str "l\8217issue",Space,Str "de",Spa at line 3
+[trace] Parsed [Plain [Str "Comprendre",Space,Str "l\8217\233volution",Spac at line 2
+[trace] Parsed [Plain [Str "Expliquer",Space,Str "la",Space,Str "diff\233re at line 2
+[trace] Parsed [Plain [Str "Utiliser",Space,Str "une",Space,Strong [Str "im at line 2
+[trace] Parsed [Para [Str "Cr\233er",Space,Str "une",Space,Strong [Str "ima at line 3
+[trace] Parsed [BulletList [[Plain [Str "Comprendre",Space,Str "l\8217\233v at line 8
+[trace] Parsed [BlockQuote [Para [Str "\192",Space,Str "l\8217issue",Space, at line 12
+[trace] Parsed [Para [Str "Ce",Space,Str "cours",Space,Str "est",Space,Str  at line 17
+[trace] Parsed [Header 2 ("rappel-minimal-ordinateur-et-syst\232me-dexploit at line 19
+[trace] Parsed [Para [Str "Objectif",SoftBreak,Str "Comprendre",Space,Str " at line 4
+[trace] Parsed [BlockQuote [Para [Str "Objectif",SoftBreak,Str "Comprendre" at line 22
+[trace] Parsed [Header 3 ("architecture-simplifi\233e",[],[]) [Str "Archite at line 24
+[trace] Parsed [CodeBlock ("",["text"],[]) "Applications\n\9472\9472\9472\9 at line 32
+[trace] Parsed [Header 3 ("r\244le-du-noyau-kernel",[],[]) [Str "R\244le",S at line 34
+[trace] Parsed [Plain [Str "Gestion",Space,Str "des",Space,Str "processus"] at line 2
+[trace] Parsed [Plain [Str "Gestion",Space,Str "de",Space,Str "la",Space,St at line 2
+[trace] Parsed [Plain [Str "Acc\232s",Space,Str "au",Space,Str "mat\233riel at line 2
+[trace] Parsed [Para [Str "S\233curit\233",Space,Str "et",Space,Str "isolat at line 3
+[trace] Parsed [BulletList [[Plain [Str "Gestion",Space,Str "des",Space,Str at line 39
+[trace] Parsed [Para [Str "Toute",Space,Str "application",Space,Str "passe" at line 41
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "Toute",Space,Str "a at line 45
+[trace] Parsed [Header 2 ("historique-de-la-virtualisation",[],[]) [Str "Hi at line 47
+[trace] Parsed [Para [Str "La",Space,Str "virtualisation",Space,Str "r\233p at line 4
+[trace] Parsed [BlockQuote [Para [Str "La",Space,Str "virtualisation",Space at line 50
+[trace] Parsed [] at line 53
+[trace] Parsed [Para [Strong [Str "\200re",Space,Str "Physique",Space,Str " at line 55
+[trace] Parsed [Para [Strong [Str "Infrastructure"]]] at line 3
+[trace] Parsed [Plain [Str "Serveurs",Space,Str "d\233di\233s",Space,Str "m at line 2
+[trace] Parsed [Plain [Str "Faible",Space,Str "utilisation",Space,Str "CPU" at line 2
+[trace] Parsed [Para [Str "Scalabilit\233",Space,Str "verticale",Space,Str  at line 3
+[trace] Parsed [BulletList [[Plain [Str "Serveurs",Space,Str "d\233di\233s" at line 7
+[trace] Parsed [Para [Strong [Str "Contraintes"]]] at line 3
+[trace] Parsed [Plain [Str "Co\251ts",Space,Str "\233lev\233s"]] at line 2
+[trace] Parsed [Plain [Str "D\233ploiements",Space,Str "lents"]] at line 2
+[trace] Parsed [Plain [Str "Maintenance",Space,Str "complexe"]] at line 2
+[trace] Parsed [Plain [Str "Conflits",Space,Str "de",Space,Str "d\233pendan at line 2
+[trace] Parsed [BulletList [[Plain [Str "Co\251ts",Space,Str "\233lev\233s" at line 7
+[trace] Parsed [BulletList [[Para [Strong [Str "Infrastructure"]],BulletLis at line 67
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "\ at line 69
+[trace] Parsed [] at line 71
+[trace] Parsed [Para [Strong [Str "\200re",Space,Str "Virtuelle",Space,Str  at line 73
+[trace] Parsed [Para [Strong [Str "Technologies"]]] at line 3
+[trace] Parsed [Plain [Str "Hyperviseurs",Space,Str ":",Space,Str "VMware", at line 2
+[trace] Parsed [Para [Str "Open",Space,Str "Source",Space,Str ":",Space,Str at line 3
+[trace] Parsed [BulletList [[Plain [Str "Hyperviseurs",Space,Str ":",Space, at line 6
+[trace] Parsed [Para [Strong [Str "B\233n\233fices"]]] at line 3
+[trace] Parsed [Plain [Str "Consolidation",Space,Str "des",Space,Str "serve at line 2
+[trace] Parsed [Plain [Str "Isolation",Space,Str "forte"]] at line 2
+[trace] Parsed [Plain [Str "Portabilit\233",Space,Str "des",Space,Str "VMs" at line 2
+[trace] Parsed [Plain [Str "Haute",Space,Str "disponibilit\233"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "Consolidation",Space,Str "des",Spa at line 7
+[trace] Parsed [BulletList [[Para [Strong [Str "Technologies"]],BulletList  at line 84
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "\ at line 85
+[trace] Parsed [Div ("",["columns"],[]) [Div ("",["column"],[("width","50%" at line 89
+[trace] Parsed [Header 2 ("architecture-de-la-virtualisation",[],[]) [Str " at line 91
+[trace] Parsed [] at line 93
+[trace] Parsed [] at line 95
+[trace] Parsed [Para [RawInline (Format "html") "<figure class=''>"]] at line 98
+[trace] Parsed [] at line 100
+[trace] Parsed [RawBlock (Format "html") "<pre class=\"mermaid mermaid-js\" at line 108
+[trace] Parsed [] at line 109
+[trace] Parsed [Div ("",[],[]) [RawBlock (Format "html") "<pre class=\"merm at line 110
+[trace] Parsed [Para [RawInline (Format "html") "</figure>"]] at line 111
+[trace] Parsed [Div ("",[],[]) [Para [RawInline (Format "html") "<figure cl at line 112
+[trace] Parsed [Div ("",["cell-output-display"],[]) [Div ("",[],[]) [Para [ at line 113
+[trace] Parsed [Div ("",["cell"],[("layout-align","default")]) [Div ("",["c at line 115
+[trace] Parsed [Para [Str "Une",Space,Str "machine",Space,Str "virtuelle",S at line 117
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "Une",Space,Str "mac at line 119
+[trace] Parsed [Header 3 ("hyperviseurs-et-technologies",[],[]) [Str "Hyper at line 121
+[trace] Parsed [] at line 124
+[trace] Parsed [Para [Strong [Str "CPU"],Space,Str ":",Space,Str "Intel",Sp at line 3
+[trace] Parsed [Para [Strong [Str "M\233moire"],Space,Str ":",Space,Str "EP at line 3
+[trace] Parsed [Para [Strong [Str "I/O"],Space,Str ":",Space,Str "SR-IOV,", at line 3
+[trace] Parsed [Plain [Strong [Str "Stockage"],Space,Str ":",Space,Str "VMD at line 2
+[trace] Parsed [BulletList [[Para [Strong [Str "CPU"],Space,Str ":",Space,S at line 131
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [BulletList [[Para [S at line 132
+[trace] Parsed [] at line 134
+[trace] Parsed [Para [Strong [Str "Type",Space,Str "1",Space,Str "(Bare",Sp at line 3
+[trace] Parsed [Plain [Str "Direct",Space,Str "sur",Space,Str "le",Space,St at line 2
+[trace] Parsed [Para [Str "Performances",Space,Str "\233lev\233es"]] at line 3
+[trace] Parsed [BulletList [[Plain [Str "Direct",Space,Str "sur",Space,Str  at line 6
+[trace] Parsed [Para [Strong [Str "Type",Space,Str "2",Space,Str "(Hosted)" at line 3
+[trace] Parsed [Plain [Str "Sur",Space,Str "OS",Space,Str "existant"]] at line 2
+[trace] Parsed [Plain [Str "Simplicit\233",Space,Str "d\8217usage"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "Sur",Space,Str "OS",Space,Str "exi at line 5
+[trace] Parsed [BulletList [[Para [Strong [Str "Type",Space,Str "1",Space,S at line 143
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [BulletList [[Para [S at line 144
+[trace] Parsed [Div ("",["columns"],[]) [Div ("",["column"],[("width","50%" at line 148
+[trace] Parsed [Header 2 ("des-machines-virtuelles",[],[]) [Str "Des",Space at line 151
+[trace] Parsed [] at line 153
+[trace] Parsed [] at line 155
+[trace] Parsed [Para [RawInline (Format "html") "<figure class=''>"]] at line 158
+[trace] Parsed [] at line 160
+[trace] Parsed [RawBlock (Format "html") "<pre class=\"mermaid mermaid-js\" at line 165
+[trace] Parsed [] at line 166
+[trace] Parsed [Div ("",[],[]) [RawBlock (Format "html") "<pre class=\"merm at line 167
+[trace] Parsed [Para [RawInline (Format "html") "</figure>"]] at line 168
+[trace] Parsed [Div ("",[],[]) [Para [RawInline (Format "html") "<figure cl at line 169
+[trace] Parsed [Div ("",["cell-output-display"],[]) [Div ("",[],[]) [Para [ at line 170
+[trace] Parsed [Div ("",["cell"],[("layout-align","default")]) [Div ("",["c at line 172
+[trace] Parsed [Header 3 ("bilan-sur-les-machines-virtuelles",[],[]) [Str " at line 174
+[trace] Parsed [Para [Strong [Str "Avantages"]]] at line 178
+[trace] Parsed [Plain [Str "Isolation",Space,Str "forte"]] at line 2
+[trace] Parsed [Plain [Str "Snapshots"]] at line 2
+[trace] Parsed [Plain [Str "Migration"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "Isolation",Space,Str "forte"]],[Pl at line 181
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "A at line 182
+[trace] Parsed [Para [Strong [Str "Inconv\233nients"]]] at line 185
+[trace] Parsed [Plain [Str "OS",Space,Str "complet",Space,Str "par",Space,S at line 2
+[trace] Parsed [Plain [Str "D\233marrage",Space,Str "lent"]] at line 2
+[trace] Parsed [Plain [Str "Consommation",Space,Str "m\233moire"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "OS",Space,Str "complet",Space,Str  at line 188
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "I at line 189
+[trace] Parsed [Div ("",["columns"],[]) [Div ("",["column"],[("width","50%" at line 193
+[trace] Parsed [Header 2 ("l\233mergence-des-conteneurs-2010",[],[]) [Str " at line 195
+[trace] Parsed [Para [Str "Les",Space,Str "conteneurs",Space,Str "ne",Space at line 4
+[trace] Parsed [BlockQuote [Para [Str "Les",Space,Str "conteneurs",Space,St at line 198
+[trace] Parsed [Header 3 ("fonctionnalit\233s-cl\233s-du-noyau-linux",[],[] at line 200
+[trace] Parsed [Para [Strong [Str "Namespaces"]]] at line 3
+[trace] Parsed [Para [Str "PID,",Space,Str "Network,",Space,Str "Mount,",Sp at line 3
+[trace] Parsed [BulletList [[Plain [Str "PID,",Space,Str "Network,",Space,S at line 5
+[trace] Parsed [Para [Strong [Str "cgroups"]]] at line 3
+[trace] Parsed [Plain [Str "Limitation",Space,Str "CPU"]] at line 2
+[trace] Parsed [Plain [Str "Limitation",Space,Str "m\233moire"]] at line 2
+[trace] Parsed [Para [Str "Comptabilisation"]] at line 4
+[trace] Parsed [BulletList [[Plain [Str "Limitation",Space,Str "CPU"]],[Pla at line 8
+[trace] Parsed [OrderedList (1,Decimal,Period) [[Para [Strong [Str "Namespa at line 211
+[trace] Parsed [Para [Str "Un",Space,Str "conteneur",Space,Str "est",Space, at line 213
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "Un",Space,Str "cont at line 215
+[trace] Parsed [Header 3 ("chronologie",[],[]) [Str "Chronologie"]] at line 218
+[trace] Parsed [] at line 220
+[trace] Parsed [] at line 222
+[trace] Parsed [Para [RawInline (Format "html") "<figure class=''>"]] at line 225
+[trace] Parsed [] at line 227
+[trace] Parsed [RawBlock (Format "html") "<pre class=\"mermaid mermaid-js\" at line 234
+[trace] Parsed [] at line 235
+[trace] Parsed [Div ("",[],[]) [RawBlock (Format "html") "<pre class=\"merm at line 236
+[trace] Parsed [Para [RawInline (Format "html") "</figure>"]] at line 237
+[trace] Parsed [Div ("",[],[]) [Para [RawInline (Format "html") "<figure cl at line 238
+[trace] Parsed [Div ("",["cell-output-display"],[]) [Div ("",[],[]) [Para [ at line 239
+[trace] Parsed [Div ("",["cell"],[("layout-align","default")]) [Div ("",["c at line 241
+[trace] Parsed [Header 2 ("machines-virtuelles-vs-conteneurs",[],[]) [Str " at line 243
+[trace] Parsed [Table ("",[],[]) (Caption Nothing []) [(AlignDefault,ColWid at line 252
+[trace] Parsed [Para [Str "VM",Space,Str "=",Space,Str "virtualisation",Spa at line 255
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "VM",Space,Str "=",S at line 258
+[trace] Parsed [Header 2 ("philosophie-et-grands-principes-des-conteneurs", at line 260
+[trace] Parsed [Para [Str "Les",Space,Str "conteneurs",Space,Str "sont",Spa at line 3
+[trace] Parsed [BlockQuote [Para [Str "Les",Space,Str "conteneurs",Space,St at line 262
+[trace] Parsed [Header 3 ("principes-cl\233s",[],[]) [Str "Principes",Space at line 264
+[trace] Parsed [Para [Strong [Str "Isolation"],SoftBreak,Str "Chaque",Space at line 4
+[trace] Parsed [Para [Strong [Str "L\233g\232ret\233"],SoftBreak,Str "Pas", at line 4
+[trace] Parsed [Para [Strong [Str "Immutabilit\233"],SoftBreak,Str "Une",Sp at line 4
+[trace] Parsed [Para [Strong [Str "\201ph\233m\233rit\233"],SoftBreak,Str " at line 4
+[trace] Parsed [Para [Strong [Str "Portabilit\233"],SoftBreak,Str "Une",Spa at line 4
+[trace] Parsed [BulletList [[Para [Strong [Str "Isolation"],SoftBreak,Str " at line 279
+[trace] Parsed [Header 3 ("message-central",[],[]) [Str "Message",Space,Str at line 281
+[trace] Parsed [Para [Str "Un",Space,Str "conteneur",Space,Str "est",Space, at line 4
+[trace] Parsed [BlockQuote [Para [Str "Un",Space,Str "conteneur",Space,Str  at line 285
+[trace] Parsed [Header 2 ("docker-et-conteneurs",[],[]) [Str "Docker",Space at line 287
+[trace] Parsed [Plain [Str "Docker",Space,Str "popularise",Space,Str "les", at line 2
+[trace] Parsed [Para [Str "Il",Space,Str "fournit",Space,Str ":"]] at line 3
+[trace] Parsed [Plain [Str "Un",Space,Str "format",Space,Str "d\8217image"] at line 2
+[trace] Parsed [Plain [Str "Un",Space,Str "syst\232me",Space,Str "de",Space at line 2
+[trace] Parsed [Plain [Str "Un",Space,Str "registre"]] at line 2
+[trace] Parsed [Para [Str "Une",Space,Str "CLI",Space,Str "simple"]] at line 4
+[trace] Parsed [BulletList [[Plain [Str "Un",Space,Str "format",Space,Str " at line 9
+[trace] Parsed [BulletList [[Para [Str "Docker",Space,Str "popularise",Spac at line 296
+[trace] Parsed [Para [Str "Docker",Space,Str "n\8217est",Space,Str "pas",Sp at line 299
+[trace] Parsed [Div ("",["callout-warning"],[]) [Para [Str "Docker",Space,S at line 302
+[trace] Parsed [Header 2 ("docker-et-standards-oci",[],[]) [Str "Docker",Sp at line 304
+[trace] Parsed [Para [Str "Standardisation",Space,Str "en",Space,Str "2015" at line 3
+[trace] Parsed [Plain [Str "Image",Space,Str "Specification"]] at line 2
+[trace] Parsed [Plain [Str "Runtime",Space,Str "Specification"]] at line 2
+[trace] Parsed [Para [Str "Distribution",Space,Str "Specification"]] at line 4
+[trace] Parsed [BulletList [[Plain [Str "Image",Space,Str "Specification"]] at line 8
+[trace] Parsed [BulletList [[Para [Str "Standardisation",Space,Str "en",Spa at line 311
+[trace] Parsed [Header 2 ("concepts-fondamentaux",[],[]) [Str "Concepts",Sp at line 313
+[trace] Parsed [] at line 316
+[trace] Parsed [Para [Strong [Str "Image"]]] at line 318
+[trace] Parsed [Plain [Str "Template",Space,Str "immuable"]] at line 2
+[trace] Parsed [Plain [Str "Lecture",Space,Str "seule"]] at line 2
+[trace] Parsed [Plain [Str "Distribuable"]] at line 2
+[trace] Parsed [Plain [Str "Couches",Space,Str "empil\233es"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "Template",Space,Str "immuable"]],[ at line 322
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "I at line 324
+[trace] Parsed [] at line 326
+[trace] Parsed [Para [Strong [Str "Conteneur"]]] at line 328
+[trace] Parsed [Plain [Str "Processus",Space,Str "isol\233"]] at line 2
+[trace] Parsed [Plain [Str "Ressources",Space,Str "limit\233es"]] at line 2
+[trace] Parsed [Plain [Str "\201tat",Space,Str "\233ph\233m\232re"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "Processus",Space,Str "isol\233"]], at line 331
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "C at line 332
+[trace] Parsed [Div ("",["columns"],[]) [Div ("",["column"],[("width","50%" at line 334
+[trace] Parsed [Header 2 ("utilisation-dune-image",[],[]) [Str "Utilisation at line 336
+[trace] Parsed [CodeBlock ("",["bash"],[]) "docker run --detach \\\n  --nam at line 344
+[trace] Parsed [Header 3 ("ce-que-fait-r\233ellement-docker-run",[],[]) [St at line 346
+[trace] Parsed [Plain [Str "T\233l\233charge",Space,Str "l\8217image"]] at line 2
+[trace] Parsed [Plain [Str "Cr\233e",Space,Str "un",Space,Str "FS",Space,St at line 2
+[trace] Parsed [Plain [Str "Configure",Space,Str "r\233seau",Space,Str "et" at line 2
+[trace] Parsed [Para [Str "Lance",Space,Str "le",Space,Str "processus",Spac at line 3
+[trace] Parsed [OrderedList (1,Decimal,Period) [[Plain [Str "T\233l\233char at line 351
+[trace] Parsed [Header 2 ("cr\233ation-dune-image",[],[]) [Str "Cr\233ation at line 353
+[trace] Parsed [CodeBlock ("",["dockerfile"],[]) "FROM python:3.9-slim\n\nW at line 364
+[trace] Parsed [CodeBlock ("",["bash"],[]) "docker build -t myapp:0.1.0 ."] at line 368
+[trace] Parsed [Para [Str "Une",Space,Str "image",Space,Str "n\8217est",Spa at line 371
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "Une",Space,Str "ima at line 373
+[trace] Parsed [Header 2 ("gestion-de-base",[],[]) [Str "Gestion",Space,Str at line 375
+[trace] Parsed [CodeBlock ("",["bash"],[]) "docker image pull nginx\ndocker at line 382
+[trace] Parsed [Header 2 ("shell-et-inspection",[],[]) [Str "Shell",Space,S at line 384
+[trace] Parsed [CodeBlock ("",["bash"],[]) "docker run -it ubuntu\ndocker e at line 391
+[trace] Parsed [Header 2 ("nettoyage",[],[]) [Str "Nettoyage"]] at line 393
+[trace] Parsed [CodeBlock ("",["bash"],[]) "docker system prune\ndocker sys at line 398
+[trace] Parsed [Header 2 ("composants-standards",[],[]) [Str "Composants",S at line 400
+[trace] Parsed [CodeBlock ("",["text"],[]) "Docker CLI\n   \8595\nDocker En at line 412
+[trace] Parsed [Header 2 ("orchestration-aper\231u",[],[]) [Str "Orchestrat at line 414
+[trace] Parsed [Para [Strong [Str "Docker",Space,Str "Compose"]]] at line 3
+[trace] Parsed [Plain [Str "D\233veloppement"]] at line 2
+[trace] Parsed [Para [Str "Applications",Space,Str "simples"]] at line 3
+[trace] Parsed [BulletList [[Plain [Str "D\233veloppement"]],[Plain [Str "A at line 6
+[trace] Parsed [Para [Strong [Str "Kubernetes"]]] at line 3
+[trace] Parsed [Plain [Str "Production"]] at line 2
+[trace] Parsed [Plain [Str "Scalabilit\233"]] at line 2
+[trace] Parsed [Para [Str "R\233silience"]] at line 3
+[trace] Parsed [BulletList [[Plain [Str "Production"]],[Plain [Str "Scalabi at line 7
+[trace] Parsed [BulletList [[Para [Strong [Str "Docker",Space,Str "Compose" at line 425
+[trace] Parsed [Para [Str "Docker",Space,Str "Compose",Space,Str "\8800",Sp at line 3
+[trace] Parsed [BlockQuote [Para [Str "Docker",Space,Str "Compose",Space,St at line 427
+[trace] Parsed [Header 1 ("conclusion",[],[]) [Str "Conclusion"]] at line 429
+[trace] Parsed [Plain [Str "Les",Space,Str "conteneurs",Space,Str "compl\23 at line 2
+[trace] Parsed [Plain [Str "Ils",Space,Str "apportent",Space,Str "rapidit\2 at line 2
+[trace] Parsed [Plain [Str "Docker",Space,Str "est",Space,Str "un",Space,St at line 2
+[trace] Parsed [Para [Str "Kubernetes",Space,Str "s\8217impose",Space,Str " at line 4
+[trace] Parsed [BulletList [[Plain [Str "Les",Space,Str "conteneurs",Space, at line 435
+[trace] Parsed [Para [Str "Un",Space,Str "conteneur",Space,Str "n\8217est", at line 438
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "Un",Space,Str "cont at line 441
+[INFO] Running filter /opt/quarto/quarto-1.8.26/share/filters/main.lua
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [Table ("",[],[]) (Caption Nothing []) [(AlignDefault,ColWid at line 8
+[trace] Parsed [Header 2 ("environnement-et-reproductibilite",[],[]) [Str " at line 3
+[trace] Parsed [Para [Strong [Str "Jupyter",Space,Str "Kernel:"],Space,Code at line 5
+[trace] Parsed [Para [Str "\128421\65039",Space,Str "Env",Space,Str "Ubuntu at line 7
+[trace] Parsed [Para [Str "Ce",Space,Str "support",Space,Str "a",Space,Str  at line 9
+[trace] Parsed [Para [Str "Certaines",Space,Str "parties",Space,Str "ont",S at line 12
+[INFO] Completed filter /opt/quarto/quarto-1.8.26/share/filters/main.lua in 494 ms
+[execProcess] Success: true, code: 0
+
+Starting zsh kernel...[execProcess] /home/jovyan/miniforge3/bin/python3 /opt/quarto/quarto-1.8.26/share/jupyter/jupyter.py
+(Notebook read from cache)
+
+[execProcess] Success: true, code: 0
+Returning SassCache at /home/jovyan/work/.quarto/quarto-session-tempa134ee2354dee942/sass
+SassCache.getOrSet(...)
+SassCache.getFromHash(hash=64dadd09196c1cbf08a1c76dd3b4a4e0, inputHash=82f618174e3dd76248b793caec73d5c6, force=undefined)
+  cache miss
+  cache miss, setting
+SassCache.setFromHash(64dadd09196c1cbf08a1c76dd3b4a4e0, 82f618174e3dd76248b793caec73d5c6), ...
+[execProcess] /opt/quarto/quarto-1.8.26/bin/tools/x86_64/dart-sass/sass /home/jovyan/work/.quarto/quarto-session-tempa134ee2354dee942/537f4bcc5e9dca9f.scss /home/jovyan/work/.quarto/quarto-session-tempa134ee2354dee942/sass/64dadd09196c1cbf08a1c76dd3b4a4e0.css --style compressed --quiet --load-path=/home/jovyan/work/_extensions/grantmcdermott/clean --load-path=/opt/quarto/quarto-1.8.26/share/formats/revealjs/reveal/css/theme/source --load-path=/opt/quarto/quarto-1.8.26/share/formats/revealjs/reveal/css/theme/template
+[execProcess] Success: true, code: 0
+Returning SassCache at /home/jovyan/.cache/quarto/sass
+SassCache.getOrSet(...)
+SassCache.getFromHash(hash=d68c0b6dccd423858ed5b2cee88f1757, inputHash=35b9cd1ef8a3c8ebbe50b6e6d68495c4, force=undefined)
+  cache hit
+  cache hit
+Returning SassCache at /home/jovyan/.cache/quarto/sass
+SassCache.getOrSet(...)
+SassCache.getFromHash(hash=66e7f55fcf14ffca7aa1b791d8228cd1, inputHash=b6f6a5713437610027fdf466c9461332, force=undefined)
+  cache hit
+  cache hit
+[1mpandoc --verbose --trace[22m
+  to: revealjs
+  output-file: 00_containers_L_introduction.html
+  standalone: true
+  wrap: none
+  default-image-extension: png
+  html-math-method:
+    method: mathjax
+    url: https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js
+  slide-level: 3
+  css:
+    - _quarto-utils/reveal-custom.css
+  variables: {}
+  
+[1mmetadata[22m
+  link-citations: true
+  width: 1050
+  height: 700
+  margin: 0.1
+  center: false
+  navigationMode: default
+  controlsLayout: bottom-right
+  controlsTutorial: false
+  hash: true
+  history: true
+  hashOneBasedIndex: false
+  fragmentInURL: false
+  transition: slide
+  backgroundTransition: none
+  pdfSeparateFragments: true
+  lang: fr
+  auto-stretch: true
+  theme:
+    - default
+    - _extensions/grantmcdermott/clean/clean.scss
+    - white
+  menu:
+    side: left
+  slideNumber: c/t
+  date-format: iso
+  revealjs-plugins:
+    - verticator
+  author:
+    - name: Emmanuel BRUNO
+      email: emmanuel.bruno@univ-tln.fr
+      url: https://bruno.univ-tln.fr
+  institute:
+    - Université de Toulon
+    - LIS UMR CNRS 7020
+  affiliations:
+    - name: Université de Toulon
+    - name: LIS UMR CNRS 7020
+  date: last-modified
+  license: CC BY-NC
+  extensions:
+    - _extensions/kazuyanagimoto/clean
+    - _extensions/grantmcdermott/clean
+  footer: E. Bruno - {{< meta title >}}
+  code-block-bg: true
+  code-copy: true
+  multiplex: false
+  progress: true
+  scrollable: true
+  previewLinks: true
+  controls: true
+  chalkboard:
+    enabled: true
+    buttons: true
+  smaller: true
+  title: Introduction aux Conteneurs
+  subtitle: Concepts et Historique de la Conteneurisation
+  description: Introduction aux technologies de conteneurisation et à Docker. Comprendre les différences entre machines virtuelles et conteneurs, et les principes fondamentaux des conteneurs.
+  image: _quarto-utils/MyMedia/images/optimized/ian-taylor-jOqJbvo1P9g-unsplash_docker-400.webp
+  jupyter: zsh
+  tools:
+    - docker
+    - git
+  programs:
+    - M1-InfoMath [DEV-ADV]
+    - CNAM-I [PO43]
+  categories:
+    - Lecture
+    - Containers
+    - Docker
+  provide_notes: true
+  provide_slides: true
+  
+[execProcess] /opt/quarto/quarto-1.8.26/bin/tools/x86_64/pandoc +RTS -K512m -RTS --defaults /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/quarto-defaultsd52a7e6c6ebabf27.yml /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/quarto-inputf5cc3bed7a6c291.md --metadata-file /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/quarto-metadatadcdfc206b482285b.yml --verbose --trace --data-dir /opt/quarto/quarto-1.8.26/share/pandoc/datadir
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/35ee217ddc3885c1/template.patched from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/35ee217ddc3885c1/template.patched
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/35ee217ddc3885c1/styles.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/35ee217ddc3885c1/styles.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/35ee217ddc3885c1/title-slide.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/35ee217ddc3885c1/title-slide.html
+[INFO] Loaded /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/35ee217ddc3885c1/toc-slide.html from /tmp/quarto-session9f5046ba4216bc07/dd1c0d7e08ddfe59/35ee217ddc3885c1/toc-slide.html
+[trace] Parsed [Plain [Str "Universit\233",Space,Str "de",Space,Str "Toulon at line 1
+[trace] Parsed [Plain [Str "LIS",Space,Str "UMR",Space,Str "CNRS",Space,Str at line 1
+[trace] Parsed [Plain [Str "Emmanuel",Space,Str "BRUNO"]] at line 1
+[trace] Parsed [Plain [Str "emmanuel.bruno@univ-tln.fr"]] at line 1
+[trace] Parsed [Plain [Str "Emmanuel",Space,Str "BRUNO"]] at line 1
+[trace] Parsed [Plain [Str "https://bruno.univ-tln.fr"]] at line 1
+[trace] Parsed [Plain [Str "none"]] at line 1
+[trace] Parsed [Plain [Str "Lecture"]] at line 1
+[trace] Parsed [Plain [Str "Containers"]] at line 1
+[trace] Parsed [Plain [Str "Docker"]] at line 1
+[trace] Parsed [Plain [Str "bottom-right"]] at line 1
+[trace] Parsed [Plain [Str "2026-01-18"]] at line 1
+[trace] Parsed [Plain [Str "iso"]] at line 1
+[trace] Parsed [Plain [Str "Introduction",Space,Str "aux",Space,Str "techno at line 1
+[trace] Parsed [Plain [Str "_extensions/kazuyanagimoto/clean"]] at line 1
+[trace] Parsed [Plain [Str "_extensions/grantmcdermott/clean"]] at line 1
+[trace] Parsed [Plain [Str "E.",Space,Str "Bruno",Space,Str "-",Space,Str " at line 1
+[trace] Parsed [Plain [Str "700"]] at line 1
+[trace] Parsed [Plain [Str "_quarto-utils/MyMedia/images/optimized/ian-tayl at line 1
+[trace] Parsed [Plain [Str "Universit\233",Space,Str "de",Space,Str "Toulon at line 1
+[trace] Parsed [Plain [Str "LIS",Space,Str "UMR",Space,Str "CNRS",Space,Str at line 1
+[trace] Parsed [Plain [Str "Universit\233",Space,Str "de",Space,Str "Toulon at line 1
+[trace] Parsed [Plain [Str "LIS",Space,Str "UMR",Space,Str "CNRS",Space,Str at line 1
+[trace] Parsed [Plain [Str "zsh"]] at line 1
+[trace] Parsed [Plain [Str "fr"]] at line 1
+[trace] Parsed [Plain [Str "CC",Space,Str "BY-NC"]] at line 1
+[trace] Parsed [Plain [Str "0.1"]] at line 1
+[trace] Parsed [Plain [Str "left"]] at line 1
+[trace] Parsed [Plain [Str "default"]] at line 1
+[trace] Parsed [Plain [Str "M1-InfoMath",Space,Str "[DEV-ADV]"]] at line 1
+[trace] Parsed [Plain [Str "CNAM-I",Space,Str "[PO43]"]] at line 1
+[trace] Parsed [Plain [Str "1.8.26"]] at line 1
+[trace] Parsed [Plain [RawInline (Format "pandoc-native") "Str \"00_contain at line 1
+[trace] Parsed [Plain [RawInline (Format "pandoc-native") "Str \"00_contain at line 1
+[trace] Parsed [Plain [RawInline (Format "pandoc-native") "Str \"00_contain at line 1
+[trace] Parsed [Plain [RawInline (Format "pandoc-native") "Str \"00_contain at line 1
+[trace] Parsed [Plain [RawInline (Format "pandoc-native") "Str \"00_contain at line 1
+[trace] Parsed [Plain [RawInline (Format "pandoc-native") "Str \"00_contain at line 1
+[trace] Parsed [Plain [RawInline (Format "pandoc-native") "Str \"00_contain at line 1
+[trace] Parsed [Plain [Str "verticator"]] at line 1
+[trace] Parsed [Plain [RawInline (Format "pandoc-native") "Str \"00_contain at line 1
+[trace] Parsed [Plain [Str "c/t"]] at line 1
+[trace] Parsed [Plain [Str "Concepts",Space,Str "et",Space,Str "Historique" at line 1
+[trace] Parsed [Plain [Str "quarto-6ddeab0dce94c286292371d370982d15"]] at line 1
+[trace] Parsed [Plain [Str "Introduction",Space,Str "aux",Space,Str "Conten at line 1
+[trace] Parsed [Plain [Str "Table",Space,Str "des",Space,Str "mati\232res"] at line 1
+[trace] Parsed [Plain [Str "docker"]] at line 1
+[trace] Parsed [Plain [Str "git"]] at line 1
+[trace] Parsed [Plain [Str "slide"]] at line 1
+[trace] Parsed [Plain [Str "1050"]] at line 1
+[trace] Parsed [] at line 3
+[trace] Parsed [Header 2 ("objectifs-du-cours",[],[]) [Str "Objectifs",Spac at line 5
+[trace] Parsed [Para [Str "\192",Space,Str "l\8217issue",Space,Str "de",Spa at line 3
+[trace] Parsed [Plain [Str "Comprendre",Space,Str "l\8217\233volution",Spac at line 2
+[trace] Parsed [Plain [Str "Expliquer",Space,Str "la",Space,Str "diff\233re at line 2
+[trace] Parsed [Plain [Str "Utiliser",Space,Str "une",Space,Strong [Str "im at line 2
+[trace] Parsed [Para [Str "Cr\233er",Space,Str "une",Space,Strong [Str "ima at line 3
+[trace] Parsed [BulletList [[Plain [Str "Comprendre",Space,Str "l\8217\233v at line 8
+[trace] Parsed [BlockQuote [Para [Str "\192",Space,Str "l\8217issue",Space, at line 12
+[trace] Parsed [Para [Str "Ce",Space,Str "cours",Space,Str "est",Space,Str  at line 17
+[trace] Parsed [Header 2 ("rappel-minimal-ordinateur-et-syst\232me-dexploit at line 19
+[trace] Parsed [Para [Str "Objectif",SoftBreak,Str "Comprendre",Space,Str " at line 4
+[trace] Parsed [BlockQuote [Para [Str "Objectif",SoftBreak,Str "Comprendre" at line 22
+[trace] Parsed [Header 3 ("architecture-simplifi\233e",[],[]) [Str "Archite at line 24
+[trace] Parsed [CodeBlock ("",["text"],[]) "Applications\n\9472\9472\9472\9 at line 32
+[trace] Parsed [Header 3 ("r\244le-du-noyau-kernel",[],[]) [Str "R\244le",S at line 34
+[trace] Parsed [Plain [Str "Gestion",Space,Str "des",Space,Str "processus"] at line 2
+[trace] Parsed [Plain [Str "Gestion",Space,Str "de",Space,Str "la",Space,St at line 2
+[trace] Parsed [Plain [Str "Acc\232s",Space,Str "au",Space,Str "mat\233riel at line 2
+[trace] Parsed [Para [Str "S\233curit\233",Space,Str "et",Space,Str "isolat at line 3
+[trace] Parsed [BulletList [[Plain [Str "Gestion",Space,Str "des",Space,Str at line 39
+[trace] Parsed [Para [Str "Toute",Space,Str "application",Space,Str "passe" at line 41
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "Toute",Space,Str "a at line 45
+[trace] Parsed [Header 2 ("historique-de-la-virtualisation",[],[]) [Str "Hi at line 47
+[trace] Parsed [Para [Str "La",Space,Str "virtualisation",Space,Str "r\233p at line 4
+[trace] Parsed [BlockQuote [Para [Str "La",Space,Str "virtualisation",Space at line 50
+[trace] Parsed [] at line 53
+[trace] Parsed [Para [Strong [Str "\200re",Space,Str "Physique",Space,Str " at line 55
+[trace] Parsed [Para [Strong [Str "Infrastructure"]]] at line 3
+[trace] Parsed [Plain [Str "Serveurs",Space,Str "d\233di\233s",Space,Str "m at line 2
+[trace] Parsed [Plain [Str "Faible",Space,Str "utilisation",Space,Str "CPU" at line 2
+[trace] Parsed [Para [Str "Scalabilit\233",Space,Str "verticale",Space,Str  at line 3
+[trace] Parsed [BulletList [[Plain [Str "Serveurs",Space,Str "d\233di\233s" at line 7
+[trace] Parsed [Para [Strong [Str "Contraintes"]]] at line 3
+[trace] Parsed [Plain [Str "Co\251ts",Space,Str "\233lev\233s"]] at line 2
+[trace] Parsed [Plain [Str "D\233ploiements",Space,Str "lents"]] at line 2
+[trace] Parsed [Plain [Str "Maintenance",Space,Str "complexe"]] at line 2
+[trace] Parsed [Plain [Str "Conflits",Space,Str "de",Space,Str "d\233pendan at line 2
+[trace] Parsed [BulletList [[Plain [Str "Co\251ts",Space,Str "\233lev\233s" at line 7
+[trace] Parsed [BulletList [[Para [Strong [Str "Infrastructure"]],BulletLis at line 67
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "\ at line 69
+[trace] Parsed [] at line 71
+[trace] Parsed [Para [Strong [Str "\200re",Space,Str "Virtuelle",Space,Str  at line 73
+[trace] Parsed [Para [Strong [Str "Technologies"]]] at line 3
+[trace] Parsed [Plain [Str "Hyperviseurs",Space,Str ":",Space,Str "VMware", at line 2
+[trace] Parsed [Para [Str "Open",Space,Str "Source",Space,Str ":",Space,Str at line 3
+[trace] Parsed [BulletList [[Plain [Str "Hyperviseurs",Space,Str ":",Space, at line 6
+[trace] Parsed [Para [Strong [Str "B\233n\233fices"]]] at line 3
+[trace] Parsed [Plain [Str "Consolidation",Space,Str "des",Space,Str "serve at line 2
+[trace] Parsed [Plain [Str "Isolation",Space,Str "forte"]] at line 2
+[trace] Parsed [Plain [Str "Portabilit\233",Space,Str "des",Space,Str "VMs" at line 2
+[trace] Parsed [Plain [Str "Haute",Space,Str "disponibilit\233"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "Consolidation",Space,Str "des",Spa at line 7
+[trace] Parsed [BulletList [[Para [Strong [Str "Technologies"]],BulletList  at line 84
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "\ at line 85
+[trace] Parsed [Div ("",["columns"],[]) [Div ("",["column"],[("width","50%" at line 89
+[trace] Parsed [Header 2 ("architecture-de-la-virtualisation",[],[]) [Str " at line 91
+[trace] Parsed [] at line 93
+[trace] Parsed [] at line 95
+[trace] Parsed [Para [RawInline (Format "html") "<figure class=''>"]] at line 98
+[trace] Parsed [] at line 100
+[trace] Parsed [RawBlock (Format "html") "<pre class=\"mermaid mermaid-js\" at line 108
+[trace] Parsed [] at line 109
+[trace] Parsed [Div ("",[],[]) [RawBlock (Format "html") "<pre class=\"merm at line 110
+[trace] Parsed [Para [RawInline (Format "html") "</figure>"]] at line 111
+[trace] Parsed [Div ("",[],[]) [Para [RawInline (Format "html") "<figure cl at line 112
+[trace] Parsed [Div ("",["cell-output-display"],[]) [Div ("",[],[]) [Para [ at line 113
+[trace] Parsed [Div ("",["cell"],[("reveal","true"),("layout-align","defaul at line 115
+[trace] Parsed [Para [Str "Une",Space,Str "machine",Space,Str "virtuelle",S at line 117
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "Une",Space,Str "mac at line 119
+[trace] Parsed [Header 3 ("hyperviseurs-et-technologies",[],[]) [Str "Hyper at line 121
+[trace] Parsed [] at line 124
+[trace] Parsed [Para [Strong [Str "CPU"],Space,Str ":",Space,Str "Intel",Sp at line 3
+[trace] Parsed [Para [Strong [Str "M\233moire"],Space,Str ":",Space,Str "EP at line 3
+[trace] Parsed [Para [Strong [Str "I/O"],Space,Str ":",Space,Str "SR-IOV,", at line 3
+[trace] Parsed [Plain [Strong [Str "Stockage"],Space,Str ":",Space,Str "VMD at line 2
+[trace] Parsed [BulletList [[Para [Strong [Str "CPU"],Space,Str ":",Space,S at line 131
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [BulletList [[Para [S at line 132
+[trace] Parsed [] at line 134
+[trace] Parsed [Para [Strong [Str "Type",Space,Str "1",Space,Str "(Bare",Sp at line 3
+[trace] Parsed [Plain [Str "Direct",Space,Str "sur",Space,Str "le",Space,St at line 2
+[trace] Parsed [Para [Str "Performances",Space,Str "\233lev\233es"]] at line 3
+[trace] Parsed [BulletList [[Plain [Str "Direct",Space,Str "sur",Space,Str  at line 6
+[trace] Parsed [Para [Strong [Str "Type",Space,Str "2",Space,Str "(Hosted)" at line 3
+[trace] Parsed [Plain [Str "Sur",Space,Str "OS",Space,Str "existant"]] at line 2
+[trace] Parsed [Plain [Str "Simplicit\233",Space,Str "d\8217usage"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "Sur",Space,Str "OS",Space,Str "exi at line 5
+[trace] Parsed [BulletList [[Para [Strong [Str "Type",Space,Str "1",Space,S at line 143
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [BulletList [[Para [S at line 144
+[trace] Parsed [Div ("",["columns"],[]) [Div ("",["column"],[("width","50%" at line 148
+[trace] Parsed [Header 2 ("des-machines-virtuelles",[],[]) [Str "Des",Space at line 151
+[trace] Parsed [] at line 153
+[trace] Parsed [] at line 155
+[trace] Parsed [Para [RawInline (Format "html") "<figure class=''>"]] at line 158
+[trace] Parsed [] at line 160
+[trace] Parsed [RawBlock (Format "html") "<pre class=\"mermaid mermaid-js\" at line 165
+[trace] Parsed [] at line 166
+[trace] Parsed [Div ("",[],[]) [RawBlock (Format "html") "<pre class=\"merm at line 167
+[trace] Parsed [Para [RawInline (Format "html") "</figure>"]] at line 168
+[trace] Parsed [Div ("",[],[]) [Para [RawInline (Format "html") "<figure cl at line 169
+[trace] Parsed [Div ("",["cell-output-display"],[]) [Div ("",[],[]) [Para [ at line 170
+[trace] Parsed [Div ("",["cell"],[("reveal","true"),("layout-align","defaul at line 172
+[trace] Parsed [Header 3 ("bilan-sur-les-machines-virtuelles",[],[]) [Str " at line 174
+[trace] Parsed [Para [Strong [Str "Avantages"]]] at line 178
+[trace] Parsed [Plain [Str "Isolation",Space,Str "forte"]] at line 2
+[trace] Parsed [Plain [Str "Snapshots"]] at line 2
+[trace] Parsed [Plain [Str "Migration"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "Isolation",Space,Str "forte"]],[Pl at line 181
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "A at line 182
+[trace] Parsed [Para [Strong [Str "Inconv\233nients"]]] at line 185
+[trace] Parsed [Plain [Str "OS",Space,Str "complet",Space,Str "par",Space,S at line 2
+[trace] Parsed [Plain [Str "D\233marrage",Space,Str "lent"]] at line 2
+[trace] Parsed [Plain [Str "Consommation",Space,Str "m\233moire"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "OS",Space,Str "complet",Space,Str  at line 188
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "I at line 189
+[trace] Parsed [Div ("",["columns"],[]) [Div ("",["column"],[("width","50%" at line 193
+[trace] Parsed [Header 2 ("l\233mergence-des-conteneurs-2010",[],[]) [Str " at line 195
+[trace] Parsed [Para [Str "Les",Space,Str "conteneurs",Space,Str "ne",Space at line 4
+[trace] Parsed [BlockQuote [Para [Str "Les",Space,Str "conteneurs",Space,St at line 198
+[trace] Parsed [Header 3 ("fonctionnalit\233s-cl\233s-du-noyau-linux",[],[] at line 200
+[trace] Parsed [Para [Strong [Str "Namespaces"]]] at line 3
+[trace] Parsed [Para [Str "PID,",Space,Str "Network,",Space,Str "Mount,",Sp at line 3
+[trace] Parsed [BulletList [[Plain [Str "PID,",Space,Str "Network,",Space,S at line 5
+[trace] Parsed [Para [Strong [Str "cgroups"]]] at line 3
+[trace] Parsed [Plain [Str "Limitation",Space,Str "CPU"]] at line 2
+[trace] Parsed [Plain [Str "Limitation",Space,Str "m\233moire"]] at line 2
+[trace] Parsed [Para [Str "Comptabilisation"]] at line 4
+[trace] Parsed [BulletList [[Plain [Str "Limitation",Space,Str "CPU"]],[Pla at line 8
+[trace] Parsed [OrderedList (1,Decimal,Period) [[Para [Strong [Str "Namespa at line 211
+[trace] Parsed [Para [Str "Un",Space,Str "conteneur",Space,Str "est",Space, at line 213
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "Un",Space,Str "cont at line 215
+[trace] Parsed [Header 3 ("chronologie",[],[]) [Str "Chronologie"]] at line 218
+[trace] Parsed [] at line 220
+[trace] Parsed [] at line 222
+[trace] Parsed [Para [RawInline (Format "html") "<figure class=''>"]] at line 225
+[trace] Parsed [] at line 227
+[trace] Parsed [RawBlock (Format "html") "<pre class=\"mermaid mermaid-js\" at line 234
+[trace] Parsed [] at line 235
+[trace] Parsed [Div ("",[],[]) [RawBlock (Format "html") "<pre class=\"merm at line 236
+[trace] Parsed [Para [RawInline (Format "html") "</figure>"]] at line 237
+[trace] Parsed [Div ("",[],[]) [Para [RawInline (Format "html") "<figure cl at line 238
+[trace] Parsed [Div ("",["cell-output-display"],[]) [Div ("",[],[]) [Para [ at line 239
+[trace] Parsed [Div ("",["cell"],[("reveal","true"),("layout-align","defaul at line 241
+[trace] Parsed [Header 2 ("machines-virtuelles-vs-conteneurs",[],[]) [Str " at line 243
+[trace] Parsed [Table ("",[],[]) (Caption Nothing []) [(AlignDefault,ColWid at line 252
+[trace] Parsed [Para [Str "VM",Space,Str "=",Space,Str "virtualisation",Spa at line 255
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "VM",Space,Str "=",S at line 258
+[trace] Parsed [Header 2 ("philosophie-et-grands-principes-des-conteneurs", at line 260
+[trace] Parsed [Para [Str "Les",Space,Str "conteneurs",Space,Str "sont",Spa at line 3
+[trace] Parsed [BlockQuote [Para [Str "Les",Space,Str "conteneurs",Space,St at line 262
+[trace] Parsed [Header 3 ("principes-cl\233s",[],[]) [Str "Principes",Space at line 264
+[trace] Parsed [Para [Strong [Str "Isolation"],SoftBreak,Str "Chaque",Space at line 4
+[trace] Parsed [Para [Strong [Str "L\233g\232ret\233"],SoftBreak,Str "Pas", at line 4
+[trace] Parsed [Para [Strong [Str "Immutabilit\233"],SoftBreak,Str "Une",Sp at line 4
+[trace] Parsed [Para [Strong [Str "\201ph\233m\233rit\233"],SoftBreak,Str " at line 4
+[trace] Parsed [Para [Strong [Str "Portabilit\233"],SoftBreak,Str "Une",Spa at line 4
+[trace] Parsed [BulletList [[Para [Strong [Str "Isolation"],SoftBreak,Str " at line 279
+[trace] Parsed [Header 3 ("message-central",[],[]) [Str "Message",Space,Str at line 281
+[trace] Parsed [Para [Str "Un",Space,Str "conteneur",Space,Str "est",Space, at line 4
+[trace] Parsed [BlockQuote [Para [Str "Un",Space,Str "conteneur",Space,Str  at line 285
+[trace] Parsed [Header 2 ("docker-et-conteneurs",[],[]) [Str "Docker",Space at line 287
+[trace] Parsed [Plain [Str "Docker",Space,Str "popularise",Space,Str "les", at line 2
+[trace] Parsed [Para [Str "Il",Space,Str "fournit",Space,Str ":"]] at line 3
+[trace] Parsed [Plain [Str "Un",Space,Str "format",Space,Str "d\8217image"] at line 2
+[trace] Parsed [Plain [Str "Un",Space,Str "syst\232me",Space,Str "de",Space at line 2
+[trace] Parsed [Plain [Str "Un",Space,Str "registre"]] at line 2
+[trace] Parsed [Para [Str "Une",Space,Str "CLI",Space,Str "simple"]] at line 4
+[trace] Parsed [BulletList [[Plain [Str "Un",Space,Str "format",Space,Str " at line 9
+[trace] Parsed [BulletList [[Para [Str "Docker",Space,Str "popularise",Spac at line 296
+[trace] Parsed [Para [Str "Docker",Space,Str "n\8217est",Space,Str "pas",Sp at line 299
+[trace] Parsed [Div ("",["callout-warning"],[]) [Para [Str "Docker",Space,S at line 302
+[trace] Parsed [Header 2 ("docker-et-standards-oci",[],[]) [Str "Docker",Sp at line 304
+[trace] Parsed [Para [Str "Standardisation",Space,Str "en",Space,Str "2015" at line 3
+[trace] Parsed [Plain [Str "Image",Space,Str "Specification"]] at line 2
+[trace] Parsed [Plain [Str "Runtime",Space,Str "Specification"]] at line 2
+[trace] Parsed [Para [Str "Distribution",Space,Str "Specification"]] at line 4
+[trace] Parsed [BulletList [[Plain [Str "Image",Space,Str "Specification"]] at line 8
+[trace] Parsed [BulletList [[Para [Str "Standardisation",Space,Str "en",Spa at line 311
+[trace] Parsed [Header 2 ("concepts-fondamentaux",[],[]) [Str "Concepts",Sp at line 313
+[trace] Parsed [] at line 316
+[trace] Parsed [Para [Strong [Str "Image"]]] at line 318
+[trace] Parsed [Plain [Str "Template",Space,Str "immuable"]] at line 2
+[trace] Parsed [Plain [Str "Lecture",Space,Str "seule"]] at line 2
+[trace] Parsed [Plain [Str "Distribuable"]] at line 2
+[trace] Parsed [Plain [Str "Couches",Space,Str "empil\233es"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "Template",Space,Str "immuable"]],[ at line 322
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "I at line 324
+[trace] Parsed [] at line 326
+[trace] Parsed [Para [Strong [Str "Conteneur"]]] at line 328
+[trace] Parsed [Plain [Str "Processus",Space,Str "isol\233"]] at line 2
+[trace] Parsed [Plain [Str "Ressources",Space,Str "limit\233es"]] at line 2
+[trace] Parsed [Plain [Str "\201tat",Space,Str "\233ph\233m\232re"]] at line 2
+[trace] Parsed [BulletList [[Plain [Str "Processus",Space,Str "isol\233"]], at line 331
+[trace] Parsed [Div ("",["column"],[("width","50%")]) [Para [Strong [Str "C at line 332
+[trace] Parsed [Div ("",["columns"],[]) [Div ("",["column"],[("width","50%" at line 334
+[trace] Parsed [Header 2 ("utilisation-dune-image",[],[]) [Str "Utilisation at line 336
+[trace] Parsed [CodeBlock ("",["bash"],[]) "docker run --detach \\\n  --nam at line 344
+[trace] Parsed [Header 3 ("ce-que-fait-r\233ellement-docker-run",[],[]) [St at line 346
+[trace] Parsed [Plain [Str "T\233l\233charge",Space,Str "l\8217image"]] at line 2
+[trace] Parsed [Plain [Str "Cr\233e",Space,Str "un",Space,Str "FS",Space,St at line 2
+[trace] Parsed [Plain [Str "Configure",Space,Str "r\233seau",Space,Str "et" at line 2
+[trace] Parsed [Para [Str "Lance",Space,Str "le",Space,Str "processus",Spac at line 3
+[trace] Parsed [OrderedList (1,Decimal,Period) [[Plain [Str "T\233l\233char at line 351
+[trace] Parsed [Header 2 ("cr\233ation-dune-image",[],[]) [Str "Cr\233ation at line 353
+[trace] Parsed [CodeBlock ("",["dockerfile"],[]) "FROM python:3.9-slim\n\nW at line 364
+[trace] Parsed [CodeBlock ("",["bash"],[]) "docker build -t myapp:0.1.0 ."] at line 368
+[trace] Parsed [Para [Str "Une",Space,Str "image",Space,Str "n\8217est",Spa at line 371
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "Une",Space,Str "ima at line 373
+[trace] Parsed [Header 2 ("gestion-de-base",[],[]) [Str "Gestion",Space,Str at line 375
+[trace] Parsed [CodeBlock ("",["bash"],[]) "docker image pull nginx\ndocker at line 382
+[trace] Parsed [Header 2 ("shell-et-inspection",[],[]) [Str "Shell",Space,S at line 384
+[trace] Parsed [CodeBlock ("",["bash"],[]) "docker run -it ubuntu\ndocker e at line 391
+[trace] Parsed [Header 2 ("nettoyage",[],[]) [Str "Nettoyage"]] at line 393
+[trace] Parsed [CodeBlock ("",["bash"],[]) "docker system prune\ndocker sys at line 398
+[trace] Parsed [Header 2 ("composants-standards",[],[]) [Str "Composants",S at line 400
+[trace] Parsed [CodeBlock ("",["text"],[]) "Docker CLI\n   \8595\nDocker En at line 412
+[trace] Parsed [Header 2 ("orchestration-aper\231u",[],[]) [Str "Orchestrat at line 414
+[trace] Parsed [Para [Strong [Str "Docker",Space,Str "Compose"]]] at line 3
+[trace] Parsed [Plain [Str "D\233veloppement"]] at line 2
+[trace] Parsed [Para [Str "Applications",Space,Str "simples"]] at line 3
+[trace] Parsed [BulletList [[Plain [Str "D\233veloppement"]],[Plain [Str "A at line 6
+[trace] Parsed [Para [Strong [Str "Kubernetes"]]] at line 3
+[trace] Parsed [Plain [Str "Production"]] at line 2
+[trace] Parsed [Plain [Str "Scalabilit\233"]] at line 2
+[trace] Parsed [Para [Str "R\233silience"]] at line 3
+[trace] Parsed [BulletList [[Plain [Str "Production"]],[Plain [Str "Scalabi at line 7
+[trace] Parsed [BulletList [[Para [Strong [Str "Docker",Space,Str "Compose" at line 425
+[trace] Parsed [Para [Str "Docker",Space,Str "Compose",Space,Str "\8800",Sp at line 3
+[trace] Parsed [BlockQuote [Para [Str "Docker",Space,Str "Compose",Space,St at line 427
+[trace] Parsed [Header 1 ("conclusion",[],[]) [Str "Conclusion"]] at line 429
+[trace] Parsed [Plain [Str "Les",Space,Str "conteneurs",Space,Str "compl\23 at line 2
+[trace] Parsed [Plain [Str "Ils",Space,Str "apportent",Space,Str "rapidit\2 at line 2
+[trace] Parsed [Plain [Str "Docker",Space,Str "est",Space,Str "un",Space,St at line 2
+[trace] Parsed [Para [Str "Kubernetes",Space,Str "s\8217impose",Space,Str " at line 4
+[trace] Parsed [BulletList [[Plain [Str "Les",Space,Str "conteneurs",Space, at line 435
+[trace] Parsed [Para [Str "Un",Space,Str "conteneur",Space,Str "n\8217est", at line 438
+[trace] Parsed [Div ("",["callout-tip"],[]) [Para [Str "Un",Space,Str "cont at line 443
+[trace] Parsed [] at line 445
+[trace] Parsed [Para [Str "E.",Space,Str "Bruno",Space,Str "-",Space,Span ( at line 447
+[trace] Parsed [Div ("",["footer","footer-default"],[]) [Para [Str "E.",Spa at line 450
+[trace] Parsed [Div ("",["quarto-auto-generated-content"],[("style","displa at line 455
+[INFO] Running filter /opt/quarto/quarto-1.8.26/share/filters/main.lua
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [] at line 4
+[trace] Parsed [Table ("",[],[]) (Caption Nothing []) [(AlignDefault,ColWid at line 8
+[trace] Parsed [Header 2 ("environnement-et-reproductibilite",[],[]) [Str " at line 3
+[trace] Parsed [Para [Strong [Str "Jupyter",Space,Str "Kernel:"],Space,Code at line 5
+[trace] Parsed [Para [Str "\128421\65039",Space,Str "Env",Space,Str "Ubuntu at line 7
+[trace] Parsed [Para [Str "Ce",Space,Str "support",Space,Str "a",Space,Str  at line 9
+[trace] Parsed [Para [Str "Certaines",Space,Str "parties",Space,Str "ont",S at line 12
+[INFO] Completed filter /opt/quarto/quarto-1.8.26/share/filters/main.lua in 540 ms
+[execProcess] Success: true, code: 0
+[execProcess] _quarto-utils/move-slides.sh
+[execProcess] Success: true, code: 0
+
+[NotebookContext]: Starting Cleanup
+Output created: 00_containers_L_introduction.html
+

@@ -1,0 +1,189 @@
+---
+title: "Conteneurs — Création d’images"
+subtitle: "Docker & OCI"
+execute:
+  debug: true
+---
+
+## Objectifs
+
+À la fin de ce cours, vous saurez :
+
+- Comprendre la structure d’une image OCI
+- Créer une image manuellement (et pourquoi éviter)
+- Construire une image avec un Dockerfile
+- Utiliser ENTRYPOINT et CMD
+- Optimiser avec les builds multi-étapes
+- Publier et analyser une image
+
+## Images de conteneurs (OCI)
+
+Une image suit la **spécification OCI** (Open Container Initiative).
+
+- Ensemble de **couches en lecture seule**
+- Chaque couche = delta par rapport à la précédente
+- Métadonnées séparées (CMD, ENV, labels…)
+- Nom d'image formel — syntaxe générale : `[[registry/][namespace/]repository[:tag][@digest]]`.
+  - `repository` : partie obligatoire qui identifie le dépôt (nom du répertoire).
+  - `registry` : hôte du registre (optionnel); si absent on entend en pratique le registre Docker Hub (`docker.io`).
+  - `namespace` : segment optionnel pour regrouper les dépôts (sur Docker Hub, l'espace `library` est implicite pour les images officielles).
+  - `tag` : référence optionnelle lisible (ex. `:latest`, `:1.2.3`); si aucun tag n'est fourni, `latest` est couramment utilisé comme valeur par défaut pour l'usage, mais l'absence de tag signifie que l'image peut aussi être désignée par un `digest`.
+  - `digest` : identifiant immuable optionnel (forme `sha256:<hex>`); lorsqu'il est présent (`@digest`) il prend la priorité sur le `tag` pour désigner de façon exacte une image.
+  (Les parties entre crochets `[]` sont optionnelles selon la spécification de référence des images.)
+
+➡️ Une image **n’est pas** un conteneur mais le modèle de fichier utilisé pour en créer un ou plusieurs.
+
+### Architecture en couches
+
+Avantages :
+
+- Mutualisation des couches communes
+- Réduction de l’espace disque
+- Téléchargement incrémental
+- Cache efficace lors des builds
+
+### Exemple : Ubuntu
+
+```{zsh}
+docker pull ubuntu:jammy
+````
+
+```{zsh}
+docker history ubuntu:jammy
+```
+
+## Création manuelle d’une image
+
+Méthode possible mais **déconseillée** :
+
+1. Lancer un conteneur
+2. Modifier le système de fichiers
+3. Valider avec `docker commit`
+
+❌ Non reproductible
+❌ Historique opaque
+❌ Mauvaise pratique en production
+
+### Exemple : installer Git manuellement
+
+```zsh
+docker run --name my-ubuntu --interactive ubuntu:jammy bash - <<EOF
+apt-get update
+apt-get install -y git
+EOF
+```
+
+```zsh
+docker commit my-ubuntu mygit:latest
+docker rm my-ubuntu
+```
+
+### Tester l’image
+
+```zsh
+docker run --rm mygit git --version
+```
+
+```zsh
+docker history mygit
+```
+
+➡️ Une seule couche opaque ajoutée
+
+## Dockerfile (méthode recommandée)
+
+* Fichier texte avec instructions pour construire une image
+
+Avantages :
+
+* Reproductible
+* Versionnable (Git)
+* Automatisable
+* Lisible
+
+### Dockerfile — Structure de base
+
+```dockerfile
+FROM python:3.12-slim
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+CMD ["python", "app.py"]
+```
+### Build d’une image
+
+```{zsh}
+docker image build \
+  --quiet \
+  -t username/helloworld:0.0.1 \
+  .
+```
+
+ℹ️ Le `.` est le **contexte de build**
+
+## Gestion des tags
+
+Bonnes pratiques :
+
+* Tag multiples pour une même image avec versionnage sémantique (semver) :
+  * Versions complètes : `1.2.3`
+  * Versions majeures : `1`, `1.2`
+  * Alias : `latest`
+
+::::{.columns}
+::: {.column width="50%"}
+
+Tag à la construction (`--tag` / `-t`) :
+
+```{zsh}
+cd notebook-containers-intro-helloworld
+docker image build \
+  --quiet \
+  --tag username/helloworld:0.0.1 \
+  .
+```
+:::
+::: {.column width="50%"}
+
+Tag additionnels (`docker tag`) :
+
+```{zsh}
+docker tag username/helloworld:0.0.1 \
+  username/helloworld:0 \
+  username/helloworld:latest
+```
+:::
+::::
+
+### Utilisation de l’image
+
+::::{.columns}
+::: {.column width="50%"}
+```{zsh}
+docker run --rm username/helloworld
+```
+:::
+::: {.column width="50%"}
+```{zsh}
+docker run --rm -e NAME=Pierre username/helloworld:0.0.1
+```
+:::
+::::
+
+### Inspection d’une image
+
+::::{.columns}
+::: {.column width="50%"}
+```{zsh}
+docker image ls
+```
+:::
+::: {.column width="50%"}
+```{zsh}
+docker history username/helloworld:0.0.1
+```
+:::
+::::
+
+➡️ Taille et empilement des couches
+

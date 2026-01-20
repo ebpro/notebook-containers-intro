@@ -1,0 +1,137 @@
+## Publication sur un registry
+
+Étapes :
+
+1. Authentification
+2. Tag correct
+3. Push
+
+```zsh
+docker login
+docker push username/app:latest
+```
+
+## Connexion non interactive
+
+```{zsh}
+echo $DOCKERHUB_TOKEN | docker login \
+  --username $DOCKERHUB_USERNAME \
+  --password-stdin
+```
+## ENTRYPOINT vs CMD
+
+* **ENTRYPOINT** : commande principale
+* **CMD** : arguments par défaut
+
+| Directive  | Rôle                    |
+| ---------- | ----------------------- |
+| ENTRYPOINT | Comportement principal  |
+| CMD        | Paramètres remplaçables |
+
+## Exemple ENTRYPOINT
+
+```dockerfile
+ENTRYPOINT ["git"]
+CMD ["--version"]
+```
+
+```{zsh}
+docker run mygit
+docker run mygit status
+```
+
+➡️ Image utilisable comme un programme
+
+## Multi-stage build
+
+Objectifs :
+
+* Séparer build et runtime
+* Réduire la taille finale
+* Supprimer toolchains et sources
+
+## Exemple multi-étapes (C)
+
+```dockerfile
+FROM gcc AS build
+COPY hello.c .
+RUN gcc hello.c -o hello
+
+FROM alpine
+COPY --from=build /hello /hello
+ENTRYPOINT ["/hello"]
+```
+## Résultat
+
+* Image finale très légère
+* Aucun compilateur présent
+* Sécurité accrue
+* Démarrage rapide
+
+## Volumes & données
+
+* Les données doivent vivre **hors du conteneur**
+* `VOLUME` documente un point de montage
+
+```{zsh}
+docker run -v mydata:/data myapp
+```
+## Exposition des ports
+
+```dockerfile
+EXPOSE 80
+```
+
+```{zsh}
+docker run -p 8080:80 myapp
+```
+
+ℹ️ `EXPOSE` est informatif
+
+## Sécurité — Bonnes pratiques
+
+* Images minimalistes
+* Utilisateur non-root
+* Pas de secrets dans l’image
+* Scan des vulnérabilités
+
+## Utilisateur non-root
+
+```dockerfile
+RUN adduser -D appuser
+USER appuser
+```
+
+## Secrets avec BuildKit
+
+```dockerfile
+RUN --mount=type=secret,id=api_key \
+    cat /run/secrets/api_key > /dev/null
+```
+
+ℹ️ BuildKit requis (`DOCKER_BUILDKIT=1`)
+
+## Multi-architecture (buildx)
+
+```{zsh}
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t username/app:latest \
+  --push .
+```
+## `docker run --quiet`
+
+* Supprime **uniquement la sortie du pull**
+* N’affecte pas stdout/stderr du programme
+
+```{zsh}
+docker run --quiet nginx:alpine
+```
+
+## À retenir
+
+* Une image ≠ un conteneur
+* Dockerfile > docker commit
+* ENTRYPOINT définit le comportement
+* Multi-stage = images légères
+* Toujours penser sécurité & reproductibilité

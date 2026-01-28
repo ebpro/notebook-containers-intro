@@ -1,0 +1,277 @@
+---
+title: "Pratique Containers : Images Docker"
+subtitle: "Créer et optimiser des images Docker"
+description: Exercices pratiques pour créer et optimiser des images Docker avec des applications Java simples.
+
+image: _quarto-utils/MyMedia/images/optimized/ian-taylor-jOqJbvo1P9g-unsplash_docker-400.webp
+jupyter: bash
+tools:
+  - docker
+  - git
+
+programs:
+  - M1-InfoMath [DEV-ADV]
+  - CNAM-I [PO43]
+
+categories:
+  - Practice
+  - Containers
+  - Docker
+  - Images
+
+provide_notes: true
+provide_slides: false
+
+comment-directive:
+    - "#>"
+    - "#?"
+    - "//>"
+    - "%%>"
+
+---
+
+
+:::{.callout-important}
+## Corrections
+
+```{bash}
+# docker system prune --all --force --volumes
+```
+
+```{bash}
+#| echo: false
+#| output: asis
+PROVIDER="github" && \
+REPO="ebpro/notebook-containers-intro-exercices-images" && \
+BRANCH="main" && \
+gitpull.sh --provider github  --quiet \
+  --branch ${BRANCH} ${REPO} \
+  --message "La correction des exercices est disponible dans le dépôt :" && \
+source get_src_dir.sh ${PROVIDER} ${REPO}
+
+cd ${SRC_DIR}
+```
+:::
+
+
+## EXERCICE 1 — Image Java simple
+
+Créer une image Docker contenant une application Java simple construite avec Maven Wrapper.
+
+### Structure du projet
+
+Créez l’arborescence suivante :
+
+```
+
+hello-java/
+├── src/
+│   └── main/
+│       └── java/
+│           └── app/
+│               └── App1.java
+├── pom.xml
+```
+
+```{.java include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-exercices-images/src/main/java/app/App1.java"
+    code-line-numbers="true"
+    show-language="true"
+    filename="src/main/java/app/App1.java"
+    }
+```
+
+```{.xml include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-exercices-images/pom.xml"
+    code-line-numbers="true"
+    show-language="true"
+    filename="pom.xml" language-title="Maven POM"
+   }
+```
+
+Générez le Maven Wrapper avec la commande :
+
+```bash
+mvn wrapper:wrapper
+```
+
+Tester que l'application fonctionne localement :
+
+```{bash}
+#| echo: true
+#| output: true
+#| label: test-hello-java
+#| lang: shell
+#| fig-cap: Tester l'application Java localement
+./mvnw --batch-mode --quiet package
+java -cp target/hello-java-*.jar app.App1
+```
+
+::: {.callout-important title="A FAIRE"}
+1. Ecrire un Dockerfile pour construire l’image Docker. Vous utiliserez l’image de base `eclipse-temurin:21-jdk-alpine`.
+Vous devrez copier les fichiers, construire l’application avec Maven Wrapper, et définir la commande de démarrage.
+2. Construire l’image Docker
+3. Lancer un conteneur pour exécuter l’application Java.
+
+:::
+
+::: {.callout-tip collapse="true"}
+## Solution Dockerfile
+
+```{.dockerfile include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-exercices-images/Dockerfile"
+    code-line-numbers="true"
+    show-language="true"
+    filename="Dockerfile" language-title="Dockerfile"
+   }
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## Solution Commandes
+```{bash}
+#| echo: true
+#| output: true
+docker build -t hello-java:0.0.1 .
+```
+
+```{bash}
+#| echo: true
+#| output: true
+docker run --rm hello-java:0.0.1
+```
+:::
+
+
+## Exercice 2 — `ARG` vs `ENV` (adapté au projet `hello-java`)
+
+Ajouter au projet la classe `app.App2` qui lit un fichier pour connaitre le commit utilisé à la construction et la variable `LOG_LEVEL` (pour contrôler le niveau de logs au runtime).
+
+```{.java include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-exercices-images/src/main/java/app/App2.java"
+    code-line-numbers="true"
+    show-language="true"
+    filename="src/main/java/app/App2.java"
+    }
+```
+
+:::{.callout-important title="A FAIRE"}
+Créer un `Dockerfile.arg_env` pour montrer la différence entre une information fixe au build (`ARG`) et une configuration modifiable au runtime (`ENV`).
+:::
+
+Depuis le dossier `hello-java/`, construisez l'image en passant la valeur du commit au build :
+
+```{bash}
+#| echo: true
+#| output: true
+docker build --quiet \
+    -f Dockerfile.arg_env \
+    --build-arg GIT_COMMIT=abc123 \
+    -t hello-java:env \
+    .
+```
+
+1. Lancez le conteneur sans surcharge :
+
+```{bash}
+#| echo: true
+#| output: true
+docker run --rm hello-java:env
+```
+
+2. Lancez le conteneur en surchargeant le niveau de logs (runtime) :
+
+```{bash}
+#| echo: true
+#| output: true
+docker run --rm --env LOG_LEVEL=DEBUG hello-java:env
+```
+
+comparez les résultats.
+
+:::{.callout-tip collapse="true"}
+## Solution Dockerfile
+
+
+```{.dockerfile include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-exercices-images/Dockerfile.arg_env"
+    code-line-numbers="true"
+    show-language="true"
+    filename="Dockerfile.arg_env" language-title="Dockerfile"
+   }
+```
+:::
+
+## EXERCICE 3 — Multi-stage build + ENTRYPOINT/CMD
+
+Compléter l'application Java :
+
+```{.java include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-exercices-images/src/main/java/app/App3.java"
+    code-line-numbers="true"
+    show-language="true"
+    filename="src/main/java/app/App3.java"
+    }
+```
+
+::: {.callout-important title="A FAIRE"}
+Créer une image optimisée en multi-stage et utiliser `ENTRYPOINT` + `CMD`.
+
+1. Ecrire un Dockerfile `Dockerfile.multistage` qui utilise une construction en deux étapes :
+
+   - une étape de build utilisant l’image `eclipse-temurin:21-jdk` pour compiler l’application Java
+   - une étape runtime utilisant l’image `eclipse-temurin:21-jre` pour exécuter cette nouvelle classe de l’application Java
+2. Utiliser `ENTRYPOINT` pour définir la commande principale et `CMD` pour passer un argument optionnel (le nom à saluer).
+
+:::
+
+Tester votre solution avec les commandes suivantes :
+
+Construire l’image Docker
+
+```{bash}
+#| echo: true
+#| output: true
+docker build --quiet \
+  --file Dockerfile.multistage \
+  -t hello-java:0.0.1-multi \
+  .
+```
+
+4. Lancer le conteneur sans argument (doit afficher "Hello World!")
+
+```{bash}
+#| echo: true
+#| output: true
+docker run --rm hello-java:0.0.1-multi
+```
+
+5. Lancer le conteneur avec un argument (doit afficher "Hello Pierre!")
+
+
+```{bash}
+#| echo: true
+#| output: true
+docker run --rm -e NAME=Pierre hello-java:0.0.1-multi
+```
+
+6. comparer la taille de l’image optimisée
+```{bash}
+#| echo: true
+#| output: true
+docker image ls | grep hello-java
+```
+
+:::{.callout-important title="Extensions (Bonus)"}
+1. (Bonus 1) Modifier l’application Java pour ajouter une variable d’environnement `GREETING` personnalisable pour le message de salutation.
+2. (Bonus 2) Optimiser le Dockerfile pour le pas télécharger inutilement des dépendances Maven à chaque build quand seule le code source change.
+3. (Bonus 3) Utiliser `--mount=type=cache` associé à `RUN` pour cacher le répertoire `.m2` lors du build Maven.
+4. (Bonus 4) Utiliser des images de base plus légères (ex: `eclipse-temurin:21-jre-alpine`).
+:::
+
+::: {.callout-tip collapse="true"}
+## Solution Dockerfile
+
+
+```{.dockerfile include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-exercices-images/Dockerfile.multistage"
+    code-line-numbers="true"
+    show-language="true"
+    filename="Dockerfile.multistage" language-title="Dockerfile"
+   }
+```
+
+:::

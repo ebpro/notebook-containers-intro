@@ -1,0 +1,393 @@
+---
+title: "Conteneurs — Application à Java"
+subtitle: "Construire des images Docker Java prêtes pour l’orchestration"
+description: "Optimisation, sécurité et bonnes pratiques pour la conteneurisation Java"
+
+image: _quarto-utils/MyMedia/images/optimized/ian-taylor-jOqJbvo1P9g-unsplash_docker-400.webp
+jupyter: bash
+tools:
+  - docker
+  - java
+  - maven
+
+programs:
+  - M1-InfoMath [DEV-ADV]
+  - CNAM-I [PO43]
+
+categories:
+  - Lecture
+  - Containers
+  - Docker
+
+provide_notes: true
+provide_slides: true
+---
+
+## Objectifs
+
+> Comment **transformer une application Java en image Docker exploitable en production**.
+
+À l’issue, vous devez comprendre :
+
+- L'impact de l'ordre des instructions sur le **cache de build**.
+- Pourquoi séparer l'environnement de build du runtime (**Multi-stage**).
+- Comment rendre une image **orchestrable** (sécurité non-root, signaux PID 1).
+
+::: {.callout-important}
+Ce chapitre ne vise pas à maîtriser toutes les techniques,
+mais à comprendre **les trajectoires possibles**.
+:::
+
+## Exemples pratiques
+
+```{bash}
+#| echo: false
+#| output: asis
+
+PROVIDER="github" && \
+REPO="ebpro/notebook-containers-intro-sample-java-helloworld" && \
+BRANCH="develop" && \
+gitpull.sh --provider github --quiet \
+  --branch ${BRANCH} ${REPO} \
+  --message "Les exemples suivants sont accessibles dans le dépôt :" && \
+source get_src_dir.sh ${PROVIDER} ${REPO}
+
+docker-audit() {
+  local IMAGE=$1
+  local RED='\033[0;31m'
+  local GREEN='\033[0;32m'
+  local NC='\033[0m'
+
+  echo "ANALYSE DE L'IMAGE : $IMAGE"
+
+  # [1] SÉCURITÉ : Non-root
+  local USER=$(docker inspect "$IMAGE" --format '{{.Config.User}}')
+  if [[ -z "$USER" || "$USER" == "root" || "$USER" == "0" ]]; then
+    echo -e "   • Sécurité  : ${RED}❌ root${NC}"
+  else
+    echo -e "   • Sécurité  : ${GREEN}✅ $USER${NC}"
+  fi
+
+  # [2] SURFACE D'ATTAQUE
+  if docker run --rm "$IMAGE" sh -c "exit" >/dev/null 2>&1; then
+    echo -e "   • Surface   : ⚠️  Shell présent"
+  else
+    echo -e "   • Surface   : ${GREEN}✅ Minimaliste / Distroless${NC}"
+  fi
+
+  # [3] STRUCTURE : Propreté (Maven/Sources/SDKMAN)
+  if docker run --rm --entrypoint sh "$IMAGE" -c "which mvn || [ -d /app/src ]" >/dev/null 2>&1; then
+    echo -e "   • Structure : ${RED}❌ Polluants (Maven ou /src)${NC}"
+  else
+    echo -e "   • Structure : ${GREEN}✅ Artefact pur (Multi-stage OK)${NC}"
+  fi
+
+  # [4] RUNTIME : Identification précise via le POM
+  if [[ "$IMAGE" =~ "graalvm" ]]; then
+    echo -e "   • Runtime   : 🚀 Natif (GraalVM app)"
+  elif docker run --rm --entrypoint sh "$IMAGE" -c "[ -x /jre/bin/hello ]" >/dev/null 2>&1; then
+    echo -e "   • Runtime   : 🧩 JLink (Launcher 'hello')"
+  else
+    echo -e "   • Runtime   : ☕ Standard (JRE)"
+  fi
+
+  # [5] CONFIG : Java Container Support
+  local OPTS=$(docker inspect "$IMAGE" --format '{{range .Config.Env}}{{println .}}{{end}}' | grep "JAVA_OPTS=" | cut -d'=' -f2- || true)
+  if [[ -n "$OPTS" ]]; then
+    echo -e "   • Java Opts : ${GREEN}✅ $OPTS${NC}"
+  elif [[ "$IMAGE" =~ "graalvm" ]]; then
+    echo -e "   • Java Opts : ${GREEN}✅ N/A (Binaire natif)${NC}"
+  else
+    echo -e "   • Java Opts : ${RED}❌ Manquante${NC}"
+  fi
+
+  # [6] POIDS
+  local SIZE=$(docker image inspect "$IMAGE" --format '{{.Size}}' | awk '{printf "%.0fMB", $1/1024/1024}')
+  echo -e "   • Poids     : $SIZE"
+  echo ""
+}
+
+cd ${SRC_DIR}
+```
+
+## Image Java simple (Maven embarqué)
+
+La méthode la plus directe consiste à utiliser une image Maven officielle. C'est l'approche "tout-en-un" où l'on compile et exécute au même endroit.
+
+```{.dockerfile include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-sample-java-helloworld/Dockerfile.01.mavenimage"
+    code-line-numbers="true"
+    show-language="true"
+    filename="Dockerfile.01.mavenimage" language-title="Dockerfile"
+  }
+```
+
+```{bash}
+#| echo: false
+#| output: false
+
+cd "${SRC_DIR}"
+```
+
+---
+
+```{bash}
+#| echo: true
+#| output: true
+
+docker image build --quiet \
+  --tag javahello:mavenimage \
+  --file Dockerfile.01.mavenimage .
+```
+
+```{bash}
+#| echo: true
+#| output: true
+
+docker container run --rm javahello:mavenimage
+```
+
+```{bash}
+#| echo: false
+#| output: true
+docker-audit javahello:mavenimage
+```
+
+::: {.callout-important}
+
+### Analyse critique
+
+* **Sécurité :** L'image contient le code source, Maven et le JDK complet. C'est une surface d'attaque inutile.
+* **Poids :** L'image dépasse souvent les 800MB pour une application simple.
+:::
+
+## Image Java optimisée (multi-stage build)
+
+Le **Multi-stage build** est la stratégie de référence. On utilise une image "lourde" pour compiler, puis on ne transfère que le `.jar` et les dépendances (`lib/*.jar`) vers une image JRE légère pour l'exécution.
+
+```{.dockerfile include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-sample-java-helloworld/Dockerfile.02.mavenimagestage"
+    code-line-numbers="true"
+    show-language="true"
+    filename="Dockerfile.02.mavenimagestage" language-title="Dockerfile"
+  }
+
+```
+---
+
+```{bash}
+#| echo: true
+#| output: true
+
+docker image build --quiet \
+  --tag javahello:mavenimagestage \
+  --file Dockerfile.02.mavenimagestage .
+```
+
+```{bash}
+#| echo: false
+#| output: true
+docker-audit javahello:mavenimagestage
+```
+## Prêt pour l'orchestration (Production-Ready)
+
+Pour être orchestrée (Kubernetes, Compose), une image doit respecter des règles d'hygiène :
+
+1. **Non-Root :** Vos Dockerfiles utilisent un `appuser`. Cela empêche une faille applicative de compromettre l'hôte.
+2. **Signaux (Exec Form) :** L'usage de `ENTRYPOINT ["/script.sh"]` permet à la JVM de recevoir le `SIGTERM` pour un arrêt propre.
+3. **Mémoire :** L'usage de `-XX:MaxRAMPercentage` permet à la JVM d'être "Container Aware".
+
+## Affichage des images créées
+
+```{bash}
+#| echo: true
+#| output: true
+
+docker image ls \
+  --filter "reference=javahello" \
+  --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedSince}}"
+```
+
+## Accélérer les builds (Cache BuildKit)
+
+Docker permet de monter des caches persistants pour le répertoire `~/.m2`. Cela évite de retélécharger les dépendances à chaque modification du code source.
+
+```{.dockerfile include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-sample-java-helloworld/Dockerfile.03.dockercache"
+    code-line-numbers="true"
+    show-language="true"
+    filename="Dockerfile.03.dockercache" language-title="Dockerfile"
+  }
+```
+
+---
+
+```{bash}
+#| echo: true
+#| output: true
+docker image build --quiet \
+  --tag javahello:dockercache \
+  --file Dockerfile.03.dockercache .
+
+```
+
+```{bash}
+#| echo: false
+#| output: true
+docker-audit javahello:dockercache
+```
+
+::: callout-note
+L'instruction `--mount=type=cache,target=/root/.m2` est une fonctionnalité BuildKit qui transforme radicalement l'expérience de CI/CD.
+:::
+
+## Construction personnalisée (SDKMAN) — Avancé
+
+L'usage de SDKMAN permet un contrôle granulaire sur les versions exactes du JDK et des outils de build, indépendamment des images Maven officielles.
+
+```{.dockerfile include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-sample-java-helloworld/Dockerfile.05.manual"
+    code-line-numbers="true"
+    show-language="true"
+    filename="Dockerfile.05.manual" language-title="Dockerfile"
+  }
+
+```
+
+---
+
+```{bash}
+#| echo: true
+#| output: true
+docker image build --quiet \
+  --tag javahello:manual \
+  --file Dockerfile.05.manual .
+```
+
+```{bash}
+#| echo: false
+#| output: true
+docker-audit javahello:manual
+```
+
+## Image minimale avec jlink (JPMS) — Expert
+
+`jlink` permet de créer un runtime Java sur mesure contenant uniquement les modules nécessaires.
+
+::: callout-warning
+Nécessite une application modularisée (JPMS) et une analyse fine des dépendances.
+:::
+
+```{.dockerfile include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-sample-java-helloworld/Dockerfile.06.jlink"
+    code-line-numbers="true"
+    show-language="true"
+    filename="Dockerfile.06.jlink" language-title="Dockerfile"
+  }
+```
+
+---
+
+```{bash}
+#| echo: false
+#| output: true
+docker image build --quiet \
+  --tag javahello:jlink \
+  --file Dockerfile.06.jlink .
+
+```
+
+```{bash}
+#| echo: false
+#| output: true
+docker-audit javahello:jlink
+```
+
+## jlink-alpine — Minimalité et compromis
+
+`jlink-alpine` propose un runtime Java construit sur Alpine (musl) contenant uniquement les modules nécessaires. C'est une excellente option pédagogique pour montrer l'impact du runtime sur la taille d'image, mais elle comporte des limites pratiques.
+
+::: callout-warning
+Alpine utilise `musl` (libc alternative). Les composants natifs (JNI), certaines bibliothèques précompilées ou des outils attendus par glibc peuvent ne pas fonctionner. Testez systématiquement avant production.
+:::
+
+- **Avantages**:
+
+  - Image très compacte (gain de plusieurs dizaines à centaines de MB).
+  - Idéale pour démonstrations et environnements contrôlés.
+
+- **Inconvénients**:
+
+  - Compatibilité native réduite (JNI, agents natifs, certains drivers).
+  - Parfois plus difficile à déboguer (outils absents dans l'image).
+
+Commandes utiles (exemples étudiants) :
+
+Recommandation : pour un déploiement robuste, préférez `jlink` (Debian/distroless) sauf si vous maîtrisez l'ensemble des dépendances natives.
+
+
+## Exécutable natif avec GraalVM — Culture
+
+GraalVM compile Java en binaire natif.
+
+* **Avantage :** Démarrage instantané (< 100ms) et RAM dérisoire.
+* **Inconvénient :** Build complexe et perte de certaines capacités dynamiques de la JVM.
+
+```{.dockerfile include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-sample-java-helloworld/Dockerfile.07.graalVM"
+    code-line-numbers="true"
+    show-language="true"
+    filename="Dockerfile.07.graalVM" language-title="Dockerfile"
+  }
+
+```
+
+---
+
+```{bash}
+#| echo: false
+#| output: true
+docker image build --quiet \
+  --tag javahello:graalvm \
+  --file Dockerfile.07.graalVM .
+
+```
+
+```{bash}
+#| echo: false
+#| output: true
+docker-audit javahello:graalvm
+```
+
+## Comparaison des stratégies
+
+| Image Tag | Build Cold | Size | Peak RAM | Surface d'Attaque |
+| --- | --- | --- | --- | --- |
+| mavenimage | 28s | 928MB | 86.01 MiB | Maximale |
+| mavenimagestage | 24s | 406MB | 71.97 MiB | Moyenne |
+| jlink-alpine | 30s | 163MB | 55.83 MiB | Faible |
+| graalvm | 57s | 46MB | 5.02 MiB | **Minimale** |
+
+## Conclusion
+
+::: {.callout-important}
+
+### Points clés pour la mise en production
+
+* **Multi-stage build** : Séparation build / runtime.
+* **Utilisateur non-root** : Sécurité de l'hôte.
+* **Gestion des ressources** : Paramétrage JVM pour les limites de conteneur.
+* **Logs** : Toujours sur `stdout/stderr` (laissé à la charge de l'orchestrateur).
+:::
+
+Prochaine étape : **orchestrer ces images avec Docker Compose**.
+
+```{bash}
+#| echo: false
+#| output: false
+
+# stop any running containers
+docker stop $(docker ps -q) 2>/dev/null || true
+docker rm   $(docker ps -aq) 2>/dev/null || true
+
+# cleanup volumes/networks (optionnel)
+docker volume prune -f 2>/dev/null || true
+docker network prune -f 2>/dev/null || true
+
+```
+
+

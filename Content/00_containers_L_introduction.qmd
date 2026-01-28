@@ -443,3 +443,16 @@ Linux Kernel
 Un conteneur n’est pas un mini-serveur
 C’est un **processus isolé et maîtrisé**
 :::
+
+```{bash}
+#| echo: false
+#| output: false
+
+# stop any running containers
+docker stop $(docker ps -q) 2>/dev/null || true
+docker rm   $(docker ps -aq) 2>/dev/null || true
+
+# cleanup volumes/networks (optionnel)
+docker volume prune -f 2>/dev/null || true
+docker network prune -f 2>/dev/null || true
+```

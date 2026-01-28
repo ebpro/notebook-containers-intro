@@ -4,7 +4,11 @@ subtitle: Découvrir les conteneurs avec Docker
 description: Exercices pratiques pour découvrir Docker à travers des cas simples et progressifs.
 image: _quarto-utils/MyMedia/images/optimized/ian-taylor-jOqJbvo1P9g-unsplash_docker-400.webp
 
-jupyter: zsh
+jupyter: bash
+
+tools:
+  - docker
+  - git
 
 programs:
   - M1-InfoMath [DEV-ADV]
@@ -18,48 +22,92 @@ categories:
 provide_notes: true
 provide_slides: false
 
+execute:
+  daemon: false
+
 ---
+
+```{bash}
+#| output: false
+#| echo: false
+
+#docker system prune --force
+
+## Stop all running containers at once
+#docker stop $(docker ps -q)
+## Clean up any existing containers, images, volumes
+docker system prune --all --volumes --force
+```
+
 
 ## Objectif du TP
 
-> Donner le goût des conteneurs en pratiquant :
->
-> - Les commandes essentielles : `run`, `ps`, `stop`, `rm`
-> - Les ports, volumes et réseaux
-> - Le mode interactif (exploration)
-> - La création d’une image simple avec un Dockerfile
+:::{.callout-tip}
+Donner le goût des conteneurs en pratiquant :
+
+- Les commandes essentielles : `run`, `ps`, `stop`, `rm`
+- Les ports, volumes et réseaux
+- Le mode interactif (exploration)
+- La création d’une image simple avec un Dockerfile
+:::
 
 Ce TP **n’est pas un TP de production**.
 Il vise à construire une **intuition correcte** des conteneurs.
 
----
-
 ## Prérequis
 
-- Docker installé et fonctionnel (`docker version` OK)
+- Docker installé et fonctionnel :
+```{bash}
+#|echo: true
+#|output: true
+docker --version
+```
+
 - Accès à un terminal (bash/zsh)
 - Éditeur de texte minimal
 
-> En cas de problème local :
-> https://labs.play-with-docker.com/
+::: {.callout-warning}
+Si l'installation de Docker localement est difficile, vous pouvez utiliser un environnement en ligne tel que [Play with Docker](
+https://labs.play-with-docker.com/) ou [Katacoda](https://www.katacoda.com/courses/docker).
+:::
 
----
+::: {.callout-tip}
+Les commandes présentées dans ce TP utilisent les **formes longues** des options pour plus de clarté.
+**Formes longues ↔ courtes**
+
+- **--detach** : `-d`
+- **--publish** : `-p`
+- **--volume** : `-v`
+- **--interactive** : `-i`
+- **--tty** : `-t`
+- **--env** : `-e`
+- **--name** : (pas de forme courte distincte)
+- **--rm** : (forme longue déjà explicite)
+:::
 
 ## Setup initial
 
-```bash
-mkdir -p ~/tp0 && cd ~/tp0
+```{bash}
+#|echo: false
+#|output: false
+export TP_DIR="$HOME/work/assignments/tp0-containers-101"
+```
+
+Créer un dossier de travail et s’y positionner (`$TP_DIR="~/tp0-containers-101"`) :
+
+```{bash}
+mkdir -p "$TP_DIR" && cd "$TP_DIR"
 ```
 
 Nettoyage optionnel des restes d’exécutions précédentes :
 
-```bash
-docker rm -f tp0-nginx tp0-app 2>/dev/null || true
+```{bash}
+#|echo: true
+#|output: false
+docker rm --force tp0-nginx tp0-app 2>/dev/null || true
 docker network rm tp0-net 2>/dev/null || true
 docker image rm tp0-app:0.1 2>/dev/null || true
 ```
-
----
 
 ## Exercice 1 — Lancer un premier conteneur
 
@@ -70,14 +118,21 @@ Voir un conteneur **en cours d’exécution**.
 La commande suivante lance un conteneur `nginx` (serveur web) en arrière-plan,
 nommé `tp0-nginx`, exposant le port 80 du conteneur sur le port 8080 de l’hôte :
 
-```bash
-docker run -d --name tp0-nginx -p 8080:80 nginx:stable
+```{bash}
+#|echo: true
+#|output: true
+docker run --detach \
+  --name tp0-nginx \
+  --publish 8080:80 \
+  nginx:stable
 ```
 
 Vérifier qu’il est bien lancé :
 
-```bash
-docker ps
+```{bash}
+#|echo: true
+#|output: true
+docker container ls
 ```
 
 Il est accessible via le port 8080 de l’hôte avec un navigateur web ou `curl` :
@@ -85,64 +140,142 @@ Il est accessible via le port 8080 de l’hôte avec un navigateur web ou `curl`
 Tester :
 
 ```bash
-curl http://localhost:8080 | head
+curl --max-time 30 --include http://localhost:8080
 ```
 
-Les logs du conteneur peuvent être consultés avec :
+```{bash}
+#|echo: false
+#|output: asis
 
-```bash
+# With DIND, access nginx through the dind host
+curl --max-time 30 --include http://dind:8080
+```
+
+Les 10 derniers logs du conteneur peuvent être consultés avec :
+
+```{bash}
+#|echo: true
+#|output: true
 docker logs tp0-nginx --tail 10
 ```
 
-Il peut être arrêté avec :
+Le conteneur peut être arrêté avec :
 
-```bash
+```{bash}
+#|echo: true
+#|output: true
 docker stop tp0-nginx
+```
+
+Les conteneurs y compris arrêtés peuvent être listés avec :
+
+```{bash}
+#|echo: true
+#|output: true
+docker container ls --all
 ```
 
 et supprimé avec :
 
-```bash
-docker rm -f tp0-nginx
+```{bash}
+#|echo: true
+#|output: true
+docker rm --force tp0-nginx
 ```
 
-> Un conteneur = un service/processus isolé
-
----
+::: {.callout-important title="Rappel"}
+Un conteneur = un service/processus isolé
+:::
 
 ## Exercice 2 — Volumes : partager des fichiers
 
 ### Objectif
 
-Relier le système hôte et le conteneur.
+Pour relier le système de fichier de l'hôte et celui du conteneur, on utilise des **volumes**.
 
-```bash
+Créer un dossier `www/` sur l’hôte avec une page HTML simple :
+
+```{bash}
+#|echo: false
+#|output: false
+cd "$TP_DIR"
+```
+
+```{bash}
+#|echo: true
+#|output: true
 mkdir -p www
 echo "<h1>Hello from host</h1>" > www/index.html
 ```
 
-Lancer nginx avec volume :
+Lancer un serveur web nginx en montant le dossier `www/` de l’hôte dans le dossier `/usr/share/nginx/html` du conteneur
+(en lecture seule avec `:ro`) :
 
 ```bash
-docker run -d \
+docker run --detach \
   --name tp0-nginx \
-  -p 8080:80 \
-  -v "$PWD/www":/usr/share/nginx/html:ro \
+  --publish 8080:80 \
+  --volume "$PWD/www":/usr/share/nginx/html:ro \
   nginx:stable
 ```
 
+Il est accessible via le port 8080 de l’hôte avec un navigateur web ou `curl` :
+
+`curl` est utilisé ici pour afficher les headers HTTP et le contenu de la page.
+
+```bash
+curl --max-time 30 --include http://localhost:8080
+```
+
+```{bash}
+#|echo: false
+#|output: false
+# THE BIND MOUNT APPROACH MAY FAIL WITH REMOTE DAEMONS (PODMAN, DIND, ETC)
+# IT IS THE CASE IN THIS ENVIRONMENT.
+# IN THIS CASE, USE THE NAMED VOLUME APPROACH BELOW
+
+# Create the named volume on the remote daemon
+docker volume create tp0-www || true
+
+# Stream local www/ into the named volume on the remote daemon
+tar -C www -cf - . \
+  | docker run --rm -i -v tp0-www:/data alpine \
+      sh -c 'tar -C /data -xf - && sleep 1'
+
+# Start nginx on the remote daemon using the prefilled named volume
+docker run -d --name tp0-nginx \
+  -p 8080:80 \
+  -v tp0-www:/usr/share/nginx/html:ro \
+  nginx:stable
+```
+
+```{bash}
+#|echo: false
+#|output: true
+# Quick check (access nginx through the dind host)
+curl --max-time 30 --include http://dind:8080 || echo "curl failed or timed out"
+```
+
+
 Modifier `www/index.html` sur l’hôte et rafraîchir la page ou relancer `curl`.
+
+```bash
+echo "<h1>Hello from host - updated</h1>" > www/index.html
+curl --max-time 30 --include http://localhost:8080
+```
 
 Nettoyage :
 
-```bash
+```{bash}
+# echo: true
+#| output: true
 docker stop tp0-nginx
-docker rm -f tp0-nginx
+docker rm --force tp0-nginx
 ```
 
-> Les données ne vivent pas dans le conteneur, il doit être éphémère
-
----
+::: {.callout-important title="Rappel"}
+Les données ne vivent pas dans le conteneur, il doit être éphémère
+:::
 
 ## Exercice 3 — Mode interactif et installation
 
@@ -153,140 +286,268 @@ leur contenu et interagir avec eux.
 **Il est déconseillé d’installer des logiciels directement dans un conteneur en production.**
 
 ```bash
-docker run -it --rm ubuntu:22.04 bash
+docker run --interactive --tty --rm ubuntu:22.04
 ```
 
-Dans le conteneur :
+Dans le conteneur, exécuter les commandes suivantes pour explorer le système, créer un fichier et installer `curl`.
 
 ```bash
 cat /etc/os-release
 uname -a
 echo "Hello from inside the container" > /tmp/hello.txt
-apt update
-apt install -y curl
-curl https://example.com
+apt update && apt install -y curl
+curl --max-time 30 --include https://example.com
 ```
 
-Il est possible de tout faire **dans le conteneur**  car **on est root par défaut**.
+quitter le conteneur avec la commande `exit` (ou Ctrl+D).
 
-Pour quitter le conteneur :
-
-```bash
-exit
+```{bash}
+#|echo: false
+#|output: true
+docker run --rm ubuntu:22.04 sh -lc "apt-get update -qq; apt-get install -qq -o=Dpkg::Use-Pty=0 -y curl; echo ; uname -a; echo ; curl --max-time 30 --include https://example.com"
 ```
 
 Relancer :
 
 ```bash
-docker run -it --rm ubuntu:22.04 bash
+docker run --interactive --tty --rm ubuntu:22.04 bash
 cat /tmp/hello.txt   # ❌ disparu
-curl https://example.com  # ❌ curl non installé
+curl --max-time 30 --include https://example.com  # ❌ curl non installé
 ```
-
-> Ce qui n’est pas dans une image est perdu
-
----
+::: {.callout-important title="Rappel"}
+Ce qui n’est pas dans une image est perdu
+:::
 
 ## Exercice 4 — Créer une image simple
 
 Pour rendre l’installation reproductible et persistante, il faut créer une image.
 L'approche standard est d’écrire un fichier **Dockerfile** décrivant l’image.
 
-Créer `Dockerfile` :
+Créer un `Dockerfile` qui installe `curl` (`RUN`) dans une image basée sur `ubuntu:22.04` (`FROM`) et qui lance `bash` par défaut (`CMD`).
 
-```dockerfile
+```{bash}
+#|echo: false
+#|output: false
+cd "$TP_DIR"
+```
+
+```{bash}
+# | echo: false
+# | output: false
+cat > Dockerfile << 'EOF'
 FROM ubuntu:22.04
 RUN apt update && apt install -y curl
 CMD ["bash"]
+EOF
 ```
 
-Construire :
+```{.dockerfile include="/home/jovyan/work/assignments/tp0-containers-101/Dockerfile"
+    code-line-numbers="true"
+    show-language="true"
+    filename="Dockerfile" language-title="Dockerfile"
+    }
+```
+
+Construire l’image Docker à partir d'un Dockerfile dans le dossier courant (`.`) avec le tag `tp0-ubuntu-curl` :
 
 ```bash
-docker build -t tp0-ubuntu-curl .
+docker build --tag tp0-ubuntu-curl .
 ```
 
-Tester :
+```{bash}
+#echo: false
+#output: true
+docker build --progress plain --tag tp0-ubuntu-curl .
+```
+
+Tester en mode interactif en exécutant la commande `curl --max-time 30 --include https://example.com`  dans le conteneur :
 
 ```bash
-docker run -it --rm tp0-ubuntu-curl
-curl https://example.com
+docker run --interactive --tty --rm tp0-ubuntu-curl
 ```
 
----
+la commande peut aussi être passée en paramètre du `docker run` :
+
+```{bash}
+#| echo: true
+#| output: true
+docker run --rm tp0-ubuntu-curl \
+  curl --max-time 30 --include https://example.com
+```
 
 ## Exercice 5 — Construire une image applicative
 
 En suivant la même approche, il est possible de
 créer une image contenant une application Python simple.
 
-Créer une structure de dossiers `app/` avec les fichiers suivants :
+Créer une structure de dossiers `app/` avec une application serveur Web minimale en Python :
 
-`app/app.py` :
-
-Une application serveur Web minimale :
-
-```python
+```{bash}
+#| echo: false
+#| output: false
+cd "$TP_DIR"
+mkdir -p app
+cat > app/app.py << 'EOF'
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 
 server = HTTPServer(('0.0.0.0', 5000), SimpleHTTPRequestHandler)
 print("Listening on 5000")
 server.serve_forever()
-```
-Un fichier Dockerfile
+EOF
 
-`app/Dockerfile` :
-
-```dockerfile
+cat > app/Dockerfile << 'EOF'
 FROM python:3.11-slim
 WORKDIR /app
 COPY app.py .
 CMD ["python", "app.py"]
+EOF
 ```
 
-Construire, lancer et tester l’application :
+```{bash}
+#| echo: false
+#| output: true
+tree -C  --gitignore app
+```
+L'application Python
 
-```bash
-docker build -t tp0-app:0.1 ./app
-docker run -d --name tp0-app -p 5000:5000 tp0-app:0.1
-curl http://localhost:5000
+```{.python include="/home/jovyan/work/assignments/tp0-containers-101/app/app.py"
+    code-line-numbers="true"
+    show-language="true"
+    filename="app/app.py" language-title="Python"
+    }
+```
+Un fichier Dockerfile qui construit l’image de l’application Python en utilisant l’image officielle `python:3.11-slim` comme base,
+en copiant le fichier `app.py` dans le conteneur et en définissant la commande par défaut pour exécuter l’application.
+
+```{.dockerfile include="/home/jovyan/work/assignments/tp0-containers-101/app/Dockerfile"
+    code-line-numbers="true"
+    show-language="true"
+    filename="app/Dockerfile" language-title="Dockerfile"
+    }
 ```
 
-Nettoyage :
+Construire l’image Docker **depuis le dossier `app/`** avec le tag `tp0-app:0.0.1` :
+
+```{bash}
+#| echo: false
+#| output: false
+cd "$TP_DIR/app"
+```
 
 ```bash
+docker build --tag tp0-app:0.0.1 .
+```
+```{bash}
+#| echo: false
+#| output: true
+docker build --progress plain --tag tp0-app:0.0.1 .
+```
+
+Exécuter le conteneur en mappant le port 5000 du conteneur (sur lequel l’application écoute) sur le port 5000 de l’hôte :
+
+```{bash}
+#| echo: true
+#| output: true
+docker run --detach \
+  --name tp0-app \
+  --publish 5000:5000 \
+  tp0-app:0.0.1
+```
+
+Tester l’application avec `curl` depuis l’hôte :
+
+```bash
+curl --max-time 30 --include http://localhost:5000
+```
+
+```{bash}
+#| echo: false
+#| output: true
+sleep 2
+curl --max-time 30 --include http://dind:5000
+```
+
+Nettoyer le conteneur (arrêt et suppression) :
+
+```{bash}
+#| echo: true
+#| output: true
 docker stop tp0-app
-docker rm -f tp0-app
+docker rm tp0-app
 ```
-
----
-
 ## Exercice 6 — (Optionnel) Réseaux Docker
 
-Il est de faire fonctionner plusieurs conteneurs ensemble via un réseau Docker.
+Il est possible de faire fonctionner plusieurs conteneurs ensemble via un réseau Docker.
+Dans cet exercice, nous allons créer un réseau Docker et y connecter le conteneur de l’application Python et
+et autre conteneur `curl` pour tester l’application.
 
+Créer un réseau (virtuel) Docker nommé `tp0-net` :
+```{bash}
+#| echo: true
+#| output: true
+docker network create tp0-net
+```
+
+Lancer le conteneur de l’application Python dans ce réseau :
+
+```{bash}
+#| echo: true
+#| output: true
+docker run --detach \
+  --name tp0-app \
+  --network tp0-net \
+  tp0-app:0.0.1
+```
+
+Tester l’application avec un conteneur `curl` connecté au même réseau Docker,
+en utilisant le nom du conteneur `tp0-app` comme hostname pour le service :
 
 ```bash
-docker network create tp0-net
-docker run -d --name tp0-app --network tp0-net tp0-app:0.1
-docker run --rm --network tp0-net curlimages/curl http://tp0-app:5000
+#| echo: true
+#| output: asis
+docker run --rm \
+  --network tp0-net \
+  curlimages/curl --max-time 30 --include http://tp0-app:5000
 ```
 
 Nettoyage :
 
-```bash
-docker rm -f tp0-app
-docker network rm tp0-net
+```{bash}
+docker rm --force tp0-app
+docker network rm --force tp0-net
 ```
 
----
+::: {.callout-important title="Rappel"}
+Les conteneurs communiquent via des réseaux virtuels et des noms DNS internes
+:::
 
 ## Synthèse
 
-* Un conteneur est **éphémère**
-* Une image est **reproductible**
-* Le mode interactif sert à **explorer**
-* Le Dockerfile est la **source de vérité**
+::: {.callout-important title="Rappel"}
+- Un conteneur n’est pas un mini-serveur, C’est un **processus isolé, créé à partir d’une image
+- Une--include  image est un **modèle immuable** pour créer des conteneurs à l'aide d’un Dockerfile qui décrit sa construction et peut être versionné.
+- Les données doivent être stockées en dehors du conteneur via des **volumes**
+- Les conteneurs communiquent via des **réseaux virtuels**
+:::
 
-> Un conteneur n’est pas un mini-serveur
-> C’est un **processus isolé, décrit par du code**
+Les conteneurs permettent de déployer des applications complexes de manière reproductible et en isolant les différentes parties.
+
+```{bash}
+#| echo: false
+#| output: false
+
+# On récupère le PID du shell actuel (le parent des processus de cellule)
+PARENT_PID=$$
+
+# On tue tous les processus qui ont ce shell comme parent
+# (sauf le processus de la commande kill lui-même)
+pkill -9 -P $PARENT_PID 2>/dev/null || true
+
+# Nettoyage radical de Docker (au cas où un 'docker logs' ou 'curl' pendouille)
+docker rm -f $(docker ps -aq) 2>/dev/null || true
+
+# Pour DinD : on force la fermeture du socket en tuant le groupe de processus
+kill -9 -$(ps -o pgid= -p $PARENT_PID) 2>/dev/null || true
+```
+
+

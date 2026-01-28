@@ -28,3 +28,6 @@
 [submodule "_quarto-utils"]
 	path = _quarto-utils
 	url = git@github.com:ebpro/_quarto-utils.git
+[submodule "notebook-containers-intro-exercices-images"]
+	path = notebook-containers-intro-exercices-images
+	url = git@github.com:ebpro/notebook-containers-intro-exercices-images.git

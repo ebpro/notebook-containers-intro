@@ -23,6 +23,33 @@ provide_notes: true
 provide_slides: true
 ---
 
+```{bash}
+#| echo: false
+#| output: false
+
+# =========================
+# Docker / Compose quiet & batch friendly
+# =========================
+
+# ---- Docker Compose ----
+export COMPOSE_ANSI=never
+export COMPOSE_PROGRESS=quiet
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+# ---- BuildKit (build docker & compose) ----
+export DOCKER_BUILDKIT=1
+export BUILDKIT_PROGRESS=quiet
+
+# ---- Désactiver les suggestions CLI interactives ----
+export DOCKER_CLI_HINTS=false
+
+# ---- Format plus script-friendly ----
+# export TERM=dumb
+
+# ---- Empêche certaines invites interactives ----
+export DEBIAN_FRONTEND=noninteractive
+```
+
 ## Objectifs
 
 > Comment **transformer une application Java en image Docker exploitable en production**.
@@ -134,7 +161,7 @@ cd "${SRC_DIR}"
 #| echo: true
 #| output: true
 
-docker image build --quiet \
+docker image build \
   --tag javahello:mavenimage \
   --file Dockerfile.01.mavenimage .
 ```
@@ -177,7 +204,7 @@ Le **Multi-stage build** est la stratégie de référence. On utilise une image 
 #| echo: true
 #| output: true
 
-docker image build --quiet \
+docker image build \
   --tag javahello:mavenimagestage \
   --file Dockerfile.02.mavenimagestage .
 ```
@@ -222,7 +249,7 @@ Docker permet de monter des caches persistants pour le répertoire `~/.m2`. Cela
 ```{bash}
 #| echo: true
 #| output: true
-docker image build --quiet \
+docker image build \
   --tag javahello:dockercache \
   --file Dockerfile.03.dockercache .
 
@@ -255,7 +282,7 @@ L'usage de SDKMAN permet un contrôle granulaire sur les versions exactes du JDK
 ```{bash}
 #| echo: true
 #| output: true
-docker image build --quiet \
+docker image build \
   --tag javahello:manual \
   --file Dockerfile.05.manual .
 ```
@@ -286,7 +313,7 @@ Nécessite une application modularisée (JPMS) et une analyse fine des dépendan
 ```{bash}
 #| echo: false
 #| output: true
-docker image build --quiet \
+docker image build \
   --tag javahello:jlink \
   --file Dockerfile.06.jlink .
 
@@ -341,7 +368,7 @@ GraalVM compile Java en binaire natif.
 ```{bash}
 #| echo: false
 #| output: true
-docker image build --quiet \
+docker image build \
   --tag javahello:graalvm \
   --file Dockerfile.07.graalVM .
 
@@ -389,5 +416,3 @@ docker volume prune -f 2>/dev/null || true
 docker network prune -f 2>/dev/null || true
 
 ```
-
-

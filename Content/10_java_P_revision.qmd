@@ -1,6 +1,6 @@
 ---
-title: "Pratique Révision Java et Git"
-subtitle: "Planificateur de séances de sport"
+title: "Mise à niveau : Java et Git"
+subtitle: "Révision des fondamentaux Java, Maven, Git, JDBC et JUnit"
 description: "Exercice pratique de remise à niveau Java, Maven, Git, JDBC et JUnit à travers le développement d'une application console de planification de séances de sport."
 
 image: _quarto-utils/MyMedia/images/optimized/taiki-ishikawa-PUXFKuVf_84-unsplash_java-400.webp

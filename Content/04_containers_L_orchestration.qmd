@@ -27,47 +27,112 @@ provide_slides: true
 
 ## Orchestration de Conteneurs
 
+::: {when-profile="notes"}
 L'orchestration consiste à coordonner plusieurs conteneurs au sein d'une même application. Si [kubernetes](https://kubernetes.io/) de Google est l'outil de référence pour les déploiements complexes, [docker compose](https://docs.docker.com/compose/) offre une alternative plus simple pour les architectures modestes.
 
 Docker compose, disponible comme [plugin](https://docs.docker.com/compose/install/) de Docker, permet de décrire une architecture multi-conteneurs dans un fichier YAML (`docker-compose.yml`). Il gère les services, volumes et réseaux avec la même syntaxe que Docker, simplifiant ainsi le déploiement d'applications conteneurisées.
+:::
+
+::: {when-profile="slides"}
+- L'orchestration de conteneurs coordonne plusieurs conteneurs pour une application.
+- Kubernetes est l'outil de référence pour les déploiements complexes.
+- Docker Compose est une alternative plus simple pour les architectures modestes.
+  - Docker Compose est un outil d'orchestration léger intégré à Docker, idéal pour les applications multi-conteneurs simples.
+  - Il utilise un fichier YAML (`compose.yml`) pour définir les services, réseaux et volumes.
+  - Parfait pour le développement local et les déploiements modestes, mais limité pour les environnements de production complexes.
+  - Permet de lancer, arrêter et gérer plusieurs conteneurs avec une seule commande.
+:::
+
+## Exemples de base
 
 ```{bash}
-#| echo: true
+#| echo: false
 #| output: asis
 
-
 PROVIDER="github" && \
-REPO="ebpro/notebook-containers-intro-sample-java-helloworld" && \
+REPO="ebpro/notebook-containers-intro-sample-java-restjpa" && \
 BRANCH="develop" && \
 gitpull.sh --provider github --quiet \
   --branch ${BRANCH} ${REPO} \
   --message "Les exemples suivants sont accessibles dans le dépôt :" && \
 source get_src_dir.sh ${PROVIDER} ${REPO}
 
-PROVIDER="github" && \
-REPO="ebpro/notebook-containers-intro-sample-java-restjpa" && \
-BRANCH="develop" && \
-gitpull.sh --provider github  \
-  --branch ${BRANCH} ${REPO} \
-  --message "Les exemples suivants sont accessibles dans le dépôt :" && \
-source get_src_dir.sh ${PROVIDER} ${REPO}
-```
-
-```{bash}
-#| echo: true
-#| output: asis
-
-PROVIDER="github"
-REPO="ebpro/notebook-containers-intro-sample-java-restjpa"
-source get_src_dir.sh ${PROVIDER} ${REPO}
-display_file.sh --lang dockerfile --numbers ${SRC_DIR}/docker-compose.yml
+cd ${SRC_DIR}
 ```
 
 ```{bash}
 #| echo: false
 #| output: false
 
-cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
+# =========================
+# Docker / Compose quiet & batch friendly
+# =========================
+
+# ---- Docker Compose ----
+export COMPOSE_ANSI=never
+export COMPOSE_PROGRESS=quiet
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+# ---- BuildKit (build docker & compose) ----
+export DOCKER_BUILDKIT=1
+export BUILDKIT_PROGRESS=quiet
+
+# ---- Désactiver les suggestions CLI interactives ----
+export DOCKER_CLI_HINTS=false
+
+# ---- Format plus script-friendly ----
+# export TERM=dumb
+
+# ---- Empêche certaines invites interactives ----
+export DEBIAN_FRONTEND=noninteractive
+```
+
+## Anatomie d'un fichier Docker Compose
+
+- Compose permet de définir et gérer des applications multi-conteneurs via un fichier YAML : `docker-compose.yml` ou `compose.yml`.
+- Ce fichier offre une syntaxe déclarative pour configurer les services, réseaux et volumes correspondant aux commandes Docker habituelles.
+- Un fichier `compose.yml` (ou `docker-compose.yml`) s'articule autour de quatre piliers principaux.
+  * **`services`** : C'est le cœur du fichier. Chaque service définit comment instancier un conteneur (image, build, variables d'environnement, dépendances).
+  * **`networks`** : Définit les ponts de communication. Par défaut, Compose crée un réseau pour le projet, mais vous pouvez isoler (ex: `frontend` vs `backend`).
+  * **`volumes`** : Déclare les espaces de stockage qui survivent à la suppression des conteneurs (`docker compose down`).
+  * **`configs` / `secrets`** : Permet de monter des fichiers de configuration ou des données sensibles de manière sécurisée (souvent utilisé avec Swarm ou les versions récentes de Compose).
+
+### Structure Générale de Docker Compose
+
+```yaml
+services:      # 1. Les conteneurs à lancer
+  web:
+    build: .
+    ports: ["80:80"]
+    networks: [frontend]
+    volumes: [data:/var/www/html]
+
+networks:      # 2. Les réseaux (isolations logiques)
+  frontend:
+
+volumes:       # 3. Le stockage persistant
+  data:
+
+configs/secrets: # 4. Données de config et mots de passe
+```
+
+Un service dans Docker Compose correspond à un conteneur Docker. Chaque service peut spécifier une image Docker à utiliser ou un contexte de construction pour créer l'image. Les services peuvent également définir des variables d'environnement, des ports exposés, des volumes montés, et des dépendances entre eux.
+
+### Exemple Pratique
+
+```{.yaml include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-sample-java-restjpa/docker-compose.yml"
+    code-line-numbers="true"
+    show-language="true"
+    filename="docker-compose.yml" language-title="Docker Compose"
+  }
+```
+
+---
+
+```{bash}
+#| echo: false
+#| output: false
+
 docker compose down --remove-orphans
 ```
 
@@ -77,9 +142,10 @@ Pour démarrer une application multi-conteneurs, utilisez la commande `docker co
 #| echo: true
 #| output: true
 
-cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
-docker compose up --progress=quiet --quiet-pull --detach
+docker compose up --detach
 ```
+
+---
 
 La commande `docker compose ls` fournit une vue d'ensemble de tous les projets Docker Compose en cours d'exécution, affichant pour chacun son nom, le répertoire source, l'état des services et le nombre de conteneurs actifs.
 
@@ -87,9 +153,10 @@ La commande `docker compose ls` fournit une vue d'ensemble de tous les projets D
 #| echo: true
 #| output: true
 
-cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker compose ls
 ```
+
+---
 
 La commande `docker compose ps` affiche les conteneurs du projet en cours, avec leurs noms générés automatiquement selon le format `<projet>-<service>-<numéro>`. Cette convention de nommage permet d'exécuter plusieurs instances du même projet dans différents répertoires ou de dupliquer des services sans conflits, à condition d'éviter les liaisons de volumes (`bind mounts`) et les mappages de ports fixes vers l'hôte.
 
@@ -97,9 +164,10 @@ La commande `docker compose ps` affiche les conteneurs du projet en cours, avec 
 #| echo: true
 #| output: true
 
-cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker compose ps
 ```
+
+---
 
 Docker Compose gère automatiquement les réseaux et volumes en les préfixant avec le nom du projet (par défaut, le nom du répertoire parent), permettant ainsi d'isoler les ressources entre différents projets et d'éviter les conflits de nommage, tout en facilitant leur identification et leur gestion avec des commandes comme `docker compose down -v` pour le nettoyage complet.
 
@@ -107,7 +175,6 @@ Docker Compose gère automatiquement les réseaux et volumes en les préfixant a
 #| echo: true
 #| output: true
 
-cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker network ls
 ```
 
@@ -115,9 +182,10 @@ docker network ls
 #| echo: true
 #| output: true
 
-cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker volume ls
 ```
+
+---
 
 La commande `docker compose logs` permet de visualiser les journaux d'un ou plusieurs services, avec des options utiles comme `-f` pour suivre les logs en temps réel, `--tail` pour limiter le nombre de lignes affichées, et `--since` pour filtrer par date, facilitant ainsi le diagnostic et la surveillance des applications multi-conteneurs.
 
@@ -125,10 +193,10 @@ La commande `docker compose logs` permet de visualiser les journaux d'un ou plus
 #| echo: true
 #| output: true
 
-cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker compose logs --tail 5
 ```
 
+---
 Docker Compose offre plusieurs commandes pour gérer le cycle de vie des services : `stop` pour arrêter les conteneurs, `rm` pour les supprimer, `restart` pour les redémarrer, et `down` pour tout nettoyer (conteneurs et réseaux) - avec l'option `-v` pour inclure également la suppression des volumes, qu'ils soient nommés ou anonymes.
 
 ::: {.callout-warning}
@@ -141,63 +209,139 @@ La commande `docker compose down -v` supprime définitivement toutes les donnée
 #| echo: true
 #| output: true
 
-cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
 docker compose down -v
 ```
 
+## Construction d'images à la volée
+
 L'autre service `app` est une application JPA/REST Java dont l'image docker est produite par `sample-java/restjpa/Dockerfile`.
+
 L'option `build` dans `docker-compose.yml` indique qu'il faut fabriquer l'image à partir du contexte courant (`image` sera alors son tag).
-La fabrication de l'image sera automatique au démarrage au besoin elle peut être faite manuellement avec `docker compose build` (ou `--build` avec `--up`).
+
+La sous-commande `build` de Docker Compose permet de construire les images à partir du contexte défini dans le fichier `docker-compose.yml`.
 
 ```{bash}
 #| echo: true
 #| output: true
 
-cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
-docker compose --progress=quiet build &&
-  docker compose up --quiet-pull --detach
+docker compose build
 ```
+
+Il est aussi une sous-commande `push` pour pousser les images vers un registre (Docker Hub, GitHub Container Registry, ...).
+
+
+La fabrication de l'image sera automatique au démarrage au besoin avec `up` **uniquement** si l'image n'existe pas déjà localement ou si le Dockerfile a été modifié depuis la dernière construction. Pour forcer la reconstruction de l'image à chaque démarrage, utilisez l'option `--build` avec `docker compose up`.
+
+```{bash}
+#| echo: true
+#| output: true
+
+docker compose up --detach
+```
+
+## Gestion des dépendances entre services
 
 La directive `depends_on` dans Docker Compose permet de gérer les dépendances entre services, mais va au-delà du simple ordre de démarrage grâce à la condition `service_healthy` qui, combinée avec des `HEALTHCHECK` (cf. Dockerfile), assure qu'un service est réellement opérationnel avant le démarrage des services qui en dépendent - par exemple, vérifier qu'une base de données accepte effectivement les connexions avant de lancer l'application qui l'utilise.
 
-
-```{bash}
-#| echo: true
-#| output: true
-
-sleep 5
-```
-
-```{bash}
-#| echo: true
-#| output: true
-
-cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
-docker run --network notebook-containers-intro-sample-java-restjpa_frontend \
-           --rm --quiet curlimages/curl:7.88.1 \
-               curl --verbose --silent \
-                 -H "Accept: application/json" \
-                 http://notebook-containers-intro-sample-java-restjpa-app-1:8080/restjpa/persons
-```
-
 ### Un exemple avancé
 
-L'exemple ci-dessous présente un exemple un peu plus avancé en ajoutant un reverse proxy (https://traefik.io) pour gérer les points d'entrées de l'application (sécurité, répartition de charges, ...).
+```{bash}
+#| echo: false
+#| output: asis
+
+PROVIDER="github" && \
+REPO="ebpro/notebook-java-rest-sample-quarkus" && \
+BRANCH="develop" && \
+gitpull.sh --provider github --quiet \
+  --branch ${BRANCH} ${REPO} \
+  --message "Les exemples suivants sont accessibles dans le dépôt :" && \
+source get_src_dir.sh ${PROVIDER} ${REPO}
+cd ${SRC_DIR}
+```
+
+L'exemple ci-dessous présente un exemple avancé en ajoutant un reverse proxy (https://traefik.io) et des outils de monitoring pour gérer les points d'entrées de l'application (sécurité, répartition de charges, ...).
+
+Commencez par le `compose.yml` qui est plus simple :
+
+```{.yaml include="/home/jovyan/work/examples/github/ebpro/notebook-java-rest-sample-quarkus/compose.yml"
+    code-line-numbers="true"
+    show-language="true"
+    filename="compose.prod.yml" language-title="Docker Compose"
+  }
+```
+### Best practices
+
+**LISEZ LE README** (le début sur les conteneurs) très attentivement pour comprendre la configuration pour découvrir les meilleures pratiques utilisées dans cet exemple :
 
 ```{bash}
 #| echo: true
-#| output: asis
+#| output: true
 
-PROVIDER="github"
-REPO="ebpro/notebook-containers-intro-sample-java-restjpa"
-source get_src_dir.sh ${PROVIDER} ${REPO}
-display_file.sh --lang dockerfile --numbers ${SRC_DIR}/docker-compose-proxy.yml
+docker compose --file compose.prod.yml up --detach
+```
+
+```{bash}
+#| echo: false
+#| output: false
+
+# Attendre que les services soient opérationnels
+sleep 15
 ```
 
 ```{bash}
 #| echo: true
 #| output: true
 
-cd /home/jovyan/work/materials/github/ebpro/notebook-containers-intro-sample-java-restjpa
-docker compose --file docker-compose.yml up --quiet-pull --detach
+docker compose ps
 ```
+
+```{bash}
+#| echo: true
+#| output: true
+
+docker compose --file compose.prod.yml down -v
+```
+
+## Passer à l’échelle : du Scale-up au Scale-out
+
+Lorsque l’application grandit, **un seul serveur devient vite une limite** :
+
+* saturation CPU / RAM
+* point unique de panne
+* impossibilité de gérer la charge variable
+
+* On passe alors d’un outil pensé pour le **développement local**
+* à des outils conçus pour **exploiter plusieurs machines**
+
+### Rôle d’un orchestrateur de conteneurs
+
+Un orchestrateur permet de :
+
+* Distribuer automatiquement les conteneurs sur plusieurs serveurs
+* Surveiller l’état des applications
+* Redémarrer les services en cas de panne
+* Déployer de nouvelles versions sans interruption
+* Adapter dynamiquement la capacité selon la charge
+
+### Docker Swarm et Kubernetes
+
+Deux approches outils :
+
+- Docker Swarm : solution d’orchestration native de Docker, simple à configurer et à utiliser.
+- Kubernetes : plateforme d’orchestration complète, plus complexe mais extrêmement puissante.
+
+| Critère              | **Docker Swarm**                  | **Kubernetes (K8s)**                       |
+| -------------------- | ------------------------------------ | --------------------------------------------- |
+| Philosophie          | Extension naturelle de Docker        | Plateforme complète d’orchestration           |
+| Complexité           | Simple et rapide à prendre en main   | Plus complexe mais extrêmement puissant       |
+| Unité de déploiement | Service                              | Pod (groupe de conteneurs)                    |
+| Installation         | `docker swarm init`                  | Installation plus lourde en production ou Cloud managé      |
+| Cas d’usage typique  | PME, projets simples | Standard industriel, Cloud natif, Multi-cloud |
+| Écosystème           | Limité                               | Très vaste et extensible                      |
+
+### Pourquoi utiliser un orchestrateur en production ?
+
+* Auto-healing : Le cluster détecte les pannes et redémarre automatiquement les conteneurs défaillants.
+* Déploiement sans interruption : Les nouvelles versions sont déployées progressivement (*rolling updates*).
+* Auto-scaling : Le nombre d’instances s’adapte automatiquement à la charge.
+* Abstraction de l’infrastructure : On ne déploie plus sur un serveur précis, mais sur un **cluster entier**.

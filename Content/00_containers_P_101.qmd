@@ -1,5 +1,5 @@
 ---
-title: Containers Pratique 101
+title: "Pratique : Container 101"
 subtitle: Découvrir les conteneurs avec Docker
 description: Exercices pratiques pour découvrir Docker à travers des cas simples et progressifs.
 image: _quarto-utils/MyMedia/images/optimized/ian-taylor-jOqJbvo1P9g-unsplash_docker-400.webp
@@ -22,10 +22,8 @@ categories:
 provide_notes: true
 provide_slides: false
 
-execute:
-  daemon: false
-
 ---
+
 
 ```{bash}
 #| output: false
@@ -39,6 +37,32 @@ execute:
 docker system prune --all --volumes --force
 ```
 
+```{bash}
+#| echo: false
+#| output: false
+
+# =========================
+# Docker / Compose quiet & batch friendly
+# =========================
+
+# ---- Docker Compose ----
+export COMPOSE_ANSI=never
+export COMPOSE_PROGRESS=quiet
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+# ---- BuildKit (build docker & compose) ----
+export DOCKER_BUILDKIT=1
+export BUILDKIT_PROGRESS=quiet
+
+# ---- Désactiver les suggestions CLI interactives ----
+export DOCKER_CLI_HINTS=false
+
+# ---- Format plus script-friendly ----
+# export TERM=dumb
+
+# ---- Empêche certaines invites interactives ----
+export DEBIAN_FRONTEND=noninteractive
+```
 
 ## Objectif du TP
 
@@ -357,7 +381,7 @@ docker build --tag tp0-ubuntu-curl .
 ```{bash}
 #echo: false
 #output: true
-docker build --progress plain --tag tp0-ubuntu-curl .
+docker build --tag tp0-ubuntu-curl .
 ```
 
 Tester en mode interactif en exécutant la commande `curl --max-time 30 --include https://example.com`  dans le conteneur :
@@ -440,7 +464,7 @@ docker build --tag tp0-app:0.0.1 .
 ```{bash}
 #| echo: false
 #| output: true
-docker build --progress plain --tag tp0-app:0.0.1 .
+docker build --tag tp0-app:0.0.1 .
 ```
 
 Exécuter le conteneur en mappant le port 5000 du conteneur (sur lequel l’application écoute) sur le port 5000 de l’hôte :

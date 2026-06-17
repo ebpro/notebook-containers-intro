@@ -2,8 +2,8 @@
 title: "Conteneurs — Création d’images"
 subtitle: "Docker & OCI"
 description: Apprenez à créer, optimiser et publier des images de conteneurs Docker en utilisant des Dockerfiles, avec un focus sur les bonnes pratiques de sécurité et de performance.
-
 image: _quarto-utils/MyMedia/images/optimized/ian-taylor-jOqJbvo1P9g-unsplash_docker-400.webp
+
 jupyter: bash
 tools:
   - docker
@@ -18,9 +18,11 @@ categories:
   - Containers
   - Docker
 
-
 provide_notes: true
 provide_slides: true
+
+execute:
+  error: true
 
 ---
 
@@ -28,6 +30,33 @@ provide_slides: true
 #| echo: false
 #| output: false
 DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME:-"brunoe"}
+```
+
+```{bash}
+#| echo: false
+#| output: false
+
+# =========================
+# Docker / Compose quiet & batch friendly
+# =========================
+
+# ---- Docker Compose ----
+export COMPOSE_ANSI=never
+export COMPOSE_PROGRESS=quiet
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+# ---- BuildKit (build docker & compose) ----
+export DOCKER_BUILDKIT=1
+export BUILDKIT_PROGRESS=quiet
+
+# ---- Désactiver les suggestions CLI interactives ----
+export DOCKER_CLI_HINTS=false
+
+# ---- Format plus script-friendly ----
+# export TERM=dumb
+
+# ---- Empêche certaines invites interactives ----
+export DEBIAN_FRONTEND=noninteractive
 ```
 
 ## Objectifs
@@ -183,13 +212,6 @@ CMD ["--version"]
 :::
 ::::
 
-
-## Exercice 1 — Une Image Docker simple
-
-Faire l'exercice :
-
-[Pratique Container Image — Exercice 1](02_containers_P_image.qmd)
-
 ### Dockerfile — Structure de base
 
 ::::{.columns}
@@ -214,25 +236,38 @@ cd ${SRC_DIR}
 ```
 :::
 ::: {.column width="60%"}
-```{.dockerfile include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-sample-python-helloworld/Dockerfile" code-line-numbers="true"}
+```{.dockerfile include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-sample-python-helloworld/Dockerfile"
+    code-line-numbers="true"
+    filename="Dockerfile"}
 ```
 :::
 ::::
 
-### Build d’une image
+### Dockerfile : Elements de base
+
+* **`FROM`** : Image de base (ex: `python:3.9`).
+* **`WORKDIR`** : Définit le dossier de travail (ex: `/app`).
+* **`COPY`** : Copie les fichiers locaux dans l'image.
+* **`RUN`** : Exécute des commandes : (ex. Installe les dépendances, `pip install`).
+* **`ENTRYPOINT` et `CMD`** : Définit la commande par défaut.
+
+### Build d’une image et exécution
 
 * Commande `docker image build`
-* Contexte de build : répertoire avec Dockerfile
+* Contexte de build : répertoire avec Dockerfile ici `.`
+  * `.dockerignore` exclure des fichiers du contexte de build ce qui accélère et sécurise la construction,
 
 ```{bash}
 #| echo: true
 #| output: true
-docker image build \
-  --quiet \
-  .
+docker image build -t mon-app:0.0.1 .
 ```
 
-ℹ️ Le `.` est le **contexte de build**
+```{bash}
+#| echo: true
+#| output: true
+docker run --rm mon-app:0.0.1
+```
 
 
 ## Gestion des tags 1/2
@@ -245,13 +280,8 @@ Bonnes pratiques :
   * Versions majeures : `1`, `1.2`
   * Alias : `latest`
 * Format : `[registry/][namespace/]repository:tag`
-  * ${DOCKERHUB_USERNAME} = votre nom d’utilisateur Docker Hub (ou autre registry)
-
 
 ### Gestion des tags 2/2
-
-::::{.columns}
-::: {.column width="50%"}
 
 Tag à la construction (`--tag` / `-t`) :
 
@@ -259,75 +289,64 @@ Tag à la construction (`--tag` / `-t`) :
 #| echo: true
 #| output: true
 docker image build \
-  --quiet \
-  --tag docker.io/${DOCKERHUB_USERNAME}/helloworld:0.0.1 \
+  --tag helloworld:0.0.1 \
   .
 ```
-:::
-::: {.column width="50%"}
 
 Tag additionnels (`docker tag`) :
+
+* Gestion des versions plus 'large'
+* Ajout d'un compte sur un registry pour partage :
+  * ${DOCKERHUB_USERNAME} = votre nom d’utilisateur Docker Hub (ou autre registry)
 
 ```{bash}
 #| echo: true
 #| output: true
-docker image tag docker.io/${DOCKERHUB_USERNAME}/helloworld:0.0.1 \
+docker image tag helloworld:0.0.1 \
   docker.io/${DOCKERHUB_USERNAME}/helloworld:0
-docker image tag docker.io/${DOCKERHUB_USERNAME}/helloworld:0.0.1 \
+
+docker image tag helloworld:0.0.1 \
+  docker.io/${DOCKERHUB_USERNAME}/helloworld:0.1
+
+docker image tag helloworld:0.0.1 \
+  docker.io/${DOCKERHUB_USERNAME}/helloworld:0.0.1
+
+docker image tag helloworld:0.0.1 \
   docker.io/${DOCKERHUB_USERNAME}/helloworld:latest
 ```
-:::
-::::
 
 ### Utilisation de l’image
 
 * Commande `docker run`
 * `-e` / `--env` pour variables d’environnement dans le conteneur
 
-::::{.columns}
-::: {.column width="50%"}
 ```{bash}
 #| echo: true
 #| output: true
 docker run --rm docker.io/${DOCKERHUB_USERNAME}/helloworld
 ```
-:::
-::: {.column width="50%"}
+
 ```{bash}
 #| echo: true
 #| output: true
 docker run --rm -e NAME=Pierre docker.io/${DOCKERHUB_USERNAME}/helloworld:0.0.1
 ```
-:::
-::::
 
-
-
-## Exercice 2 —
+## Exercice 1 — Une Image Docker simple
 
 Faire l'exercice :
 
 [Pratique Container Image — Exercice 1](02_containers_P_image.qmd)
 
-
 ## Publication sur un registry
 
 Étapes :
 
-1. Build + Tag correct : registry + namespace (nom d’utilisateur).
-2. Authentification sur le registry
-
-```bash
-docker push docker.io/${DOCKERHUB_USERNAME}/app:latest
-```
-
-```{.bash}
-echo $DOCKERHUB_TOKEN | docker login \
-  --username ${DOCKERHUB_USERNAME} \
-  --password-stdin
-```
-
-3. Push
+1. (Une fois) :
+  - création d'un compte (docker hub ou autres)
+  - connexion : `docker login`
+1. Build + Tag correct (registry + namespace (nom d’utilisateur)).
+2. Poussez les tags (`docker push`)
 
 ```bash
 docker push docker.io/${DOCKERHUB_USERNAME}/app:latest
@@ -352,25 +371,6 @@ Options principales :
 - `--retries`: nombre d'échecs consécutifs avant de considérer le conteneur comme non sain.
 
 Les `HEALTHCHECK` sont utiles pour l'orchestration (restart policies, load balancers) et pour détecter des services défaillants.
-
-## Sécurité — Bonnes pratiques
-
-Principes essentiels pour réduire la surface d'attaque et rendre les images sûres :
-
-- **Images minimalistes** : choisir des bases petites (Alpine, distroless) ou builder multi-étapes pour ne garder que l'exécutable final.
-- **Éviter les secrets dans l'image** : ne jamais écrire de mots de passe/jetons dans les Dockerfile. Utiliser BuildKit secrets (`--mount=type=secret`) ou des volumes/variables d'environnement au runtime.
-- **Ne pas exécuter en root** : définir un utilisateur non-root dans le Dockerfile.
-
-```dockerfile
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
-```
-
-- **Pinning & immutabilité** : référencer des images par digest (`@sha256:...`) ou pinner les versions de paquets pour éviter des mises à jour non contrôlées.
-- **Nettoyage des artefacts** : supprimer les caches d'installateurs et réduire le nombre de layers (ex. `apt-get clean && rm -rf /var/lib/apt/lists/*`).
-- **Scanner et vérifier** : utiliser des scanners (ex. `docker scan`, `trivy`) et générer un SBOM. Ex : `trivy image --severity HIGH,CRITICAL myimage:latest`.
-- **Limiter les privilèges au runtime** : appliquer des profiles seccomp/AppArmor, retirer les capacités inutiles (`--cap-drop`), monter le FS en lecture seule quand possible (`--read-only`).
-- **Ressources et isolation** : définir limites mémoire/CPU et pids pour limiter l'impact d'un processus compromis.
 
 ## ENTRYPOINT vs CMD
 
@@ -407,6 +407,20 @@ docker run mygit status
 ::::
 
 ➡️ Image utilisable comme un programme
+
+### Formats pour `ENTRYPOINT` / `CMD`
+
+* Exec form : `["executable", "param1"]` (Recommandé : transmet les signaux OS comme SIGTERM).
+* Shell form : `executable param1` :
+  - À éviter (l'exécutable devient un enfant de /bin/sh -c et ne reçoit pas les signaux d'arrêt, ce qui rend le docker stop lent).
+  - Mais permet le globbing (`*`) et l'interpolation des variables SHELL
+  - Solution : utiliser un script `entrypoint.sh`
+
+## Exercice 2 — ARG et ENV
+
+Faire l'exercice :
+
+[Pratique Container Image — Exercice 1](02_containers_P_image.qmd)
 
 ## Multi-stage build
 
@@ -464,7 +478,6 @@ echo '```'
 #| echo: true
 
 docker image build \
-     --quiet \
      --tag ${DOCKERHUB_USERNAME}/helloworld_c:0.0.1 \
      .
 
@@ -495,20 +508,32 @@ EXPOSE 80
 docker run -p 8080:80 myapp
 ```
 
-ℹ️ `EXPOSE` ne publie pas le port, il documente seulement.
+`EXPOSE` ne publie pas le port, il documente seulement.
 
-## Exercice 2 —
+## Exercice 3 — Multi-stage build
 
 Faire l'exercice :
 
-[Pratique Container Image — Exercice 2](02_containers_P_image.qmd)
+[Pratique Container Image — Exercice 3](03_containers_P_image.qmd)
 
 ## Sécurité — Bonnes pratiques
 
-* Images minimalistes
-* Utilisateur non-root
-* Pas de secrets dans l’image
-* Scan des vulnérabilités
+Principes essentiels pour réduire la surface d'attaque et rendre les images sûres :
+
+- **Images minimalistes** : choisir des bases petites (Alpine, distroless) ou builder multi-étapes pour ne garder que l'exécutable final.
+- **Éviter les secrets dans l'image** : ne jamais écrire de mots de passe/jetons dans les Dockerfile. Utiliser BuildKit secrets (`--mount=type=secret`) ou des volumes/variables d'environnement au runtime.
+- **Ne pas exécuter en root** : définir un utilisateur non-root dans le Dockerfile.
+
+```dockerfile
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+```
+
+- **Pinning & immutabilité** : référencer des images par digest (`@sha256:...`) ou pinner les versions de paquets pour éviter des mises à jour non contrôlées.
+- **Nettoyage des artefacts** : supprimer les caches d'installateurs et réduire le nombre de layers (ex. `apt-get clean && rm -rf /var/lib/apt/lists/*`).
+- **Scanner et vérifier** : utiliser des scanners (ex. `docker scan`, `trivy`) et générer un SBOM. Ex : `trivy image --severity HIGH,CRITICAL myimage:latest`.
+- **Limiter les privilèges au runtime** : appliquer des profiles seccomp/AppArmor, retirer les capacités inutiles (`--cap-drop`), monter le FS en lecture seule quand possible (`--read-only`).
+- **Ressources et isolation** : définir limites mémoire/CPU et pids pour limiter l'impact d'un processus compromis.
 
 ### Utilisateur non-root
 

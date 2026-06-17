@@ -1,10 +1,11 @@
 ---
-title: "Pratique Containers : Images Docker"
+title: "Pratique : Images Docker"
 subtitle: "Créer et optimiser des images Docker"
 description: Exercices pratiques pour créer et optimiser des images Docker avec des applications Java simples.
-
 image: _quarto-utils/MyMedia/images/optimized/ian-taylor-jOqJbvo1P9g-unsplash_docker-400.webp
+
 jupyter: bash
+
 tools:
   - docker
   - git
@@ -22,14 +23,43 @@ categories:
 provide_notes: true
 provide_slides: false
 
-comment-directive:
-    - "#>"
-    - "#?"
-    - "//>"
-    - "%%>"
-
 ---
 
+```{bash}
+#| echo: false
+#| output: false
+
+# =========================
+# Docker / Compose quiet & batch friendly
+# =========================
+
+# ---- Docker Compose ----
+export COMPOSE_ANSI=never
+export COMPOSE_PROGRESS=quiet
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+# ---- BuildKit (build docker & compose) ----
+export DOCKER_BUILDKIT=1
+export BUILDKIT_PROGRESS=quiet
+
+# ---- Désactiver les suggestions CLI interactives ----
+export DOCKER_CLI_HINTS=false
+
+# ---- Format plus script-friendly ----
+# export TERM=dumb
+
+# ---- Empêche certaines invites interactives ----
+export DEBIAN_FRONTEND=noninteractive
+```
+
+```{bash}
+#| echo: false
+#| output: false
+
+# --quiet --batch-mode
+
+mkdir -p .mvn && printf "%s\n" "-B" "-ntp" > .mvn/maven.config
+```
 
 :::{.callout-important}
 ## Corrections
@@ -73,12 +103,24 @@ hello-java/
 ├── pom.xml
 ```
 
+Etudier le code de l’application Java `App1.java` :
+
 ```{.java include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-exercices-images/src/main/java/app/App1.java"
     code-line-numbers="true"
     show-language="true"
     filename="src/main/java/app/App1.java"
     }
 ```
+
+Etudier le fichier `pom.xml`, regarder :
+
+  - les coordonnées du projet (groupId, artifactId, version) : identifier ton application et sa version.
+  - la section properties est très importante, car elle regroupe les versions de Java et des bibliothèques ; le projet utilise Java 21.
+    - la propriété `main.class` définit la classe principale de l’application (avec la méthode `main`) qui sera définit dans le manifeste du JAR exécutable.
+  - La partie dependencies définit les bibliothèques externes dont le projet a besoin, comme JUnit pour les tests ou les outils de logging pour afficher des messages.
+  - build/plugins, définissent comment Maven va compiler le code et lancer les tests automatiquement.
+  - Enfin, la section profiles (notamment prod). Un profil Maven est une partie optionnelle de la configuration activé manuellement (ici avec `-Pprod`). Ce profile sert à créer une version prête à être distribuée, avec un JAR exécutable (dans `target`) et les dépendances copiées dans le dossier (`libe`).
+
 
 ```{.xml include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-exercices-images/pom.xml"
     code-line-numbers="true"
@@ -87,7 +129,7 @@ hello-java/
    }
 ```
 
-Générez le Maven Wrapper avec la commande :
+Générer le Maven Wrapper avec la commande :
 
 ```bash
 mvn wrapper:wrapper
@@ -101,8 +143,9 @@ Tester que l'application fonctionne localement :
 #| label: test-hello-java
 #| lang: shell
 #| fig-cap: Tester l'application Java localement
-./mvnw --batch-mode --quiet package
-java -cp target/hello-java-*.jar app.App1
+
+./mvnw package -Pprod
+java -jar target/hello-java-*.jar app.App1
 ```
 
 ::: {.callout-important title="A FAIRE"}
@@ -126,6 +169,7 @@ Vous devrez copier les fichiers, construire l’application avec Maven Wrapper, 
 
 ::: {.callout-tip collapse="true"}
 ## Solution Commandes
+
 ```{bash}
 #| echo: true
 #| output: true
@@ -140,9 +184,9 @@ docker run --rm hello-java:0.0.1
 :::
 
 
-## Exercice 2 — `ARG` vs `ENV` (adapté au projet `hello-java`)
+## Exercice 2 — `ARG`, `ENV` (adapté au projet `hello-java`)
 
-Ajouter au projet la classe `app.App2` qui lit un fichier pour connaitre le commit utilisé à la construction et la variable `LOG_LEVEL` (pour contrôler le niveau de logs au runtime).
+Ajouter au projet la classe `app.App2` qui lit un fichier pour connaitre le commit. Ce fichier sera créé  à la construction de l'image avec un `build-arg`. L'application lit aussi la variable d'environnement `LOG_LEVEL` (pour contrôler le niveau de logs au runtime).
 
 ```{.java include="/home/jovyan/work/examples/github/ebpro/notebook-containers-intro-exercices-images/src/main/java/app/App2.java"
     code-line-numbers="true"
@@ -152,7 +196,7 @@ Ajouter au projet la classe `app.App2` qui lit un fichier pour connaitre le comm
 ```
 
 :::{.callout-important title="A FAIRE"}
-Créer un `Dockerfile.arg_env` pour montrer la différence entre une information fixe au build (`ARG`) et une configuration modifiable au runtime (`ENV`).
+Créer un `Dockerfile.arg_env` qui accepte un `build-arg` et crée le fichier `/app/GIT_COMMIT` avec cette valeur.
 :::
 
 Depuis le dossier `hello-java/`, construisez l'image en passant la valeur du commit au build :
@@ -160,14 +204,14 @@ Depuis le dossier `hello-java/`, construisez l'image en passant la valeur du com
 ```{bash}
 #| echo: true
 #| output: true
-docker build --quiet \
+docker build \
     -f Dockerfile.arg_env \
     --build-arg GIT_COMMIT=abc123 \
     -t hello-java:env \
     .
 ```
 
-1. Lancez le conteneur sans surcharge :
+1. Lancez le conteneur pour vérifier que le commit est bien passé au build :
 
 ```{bash}
 #| echo: true
@@ -175,7 +219,7 @@ docker build --quiet \
 docker run --rm hello-java:env
 ```
 
-2. Lancez le conteneur en surchargeant le niveau de logs (runtime) :
+2. Lancez le conteneur en surchargeant avec une variable d'environnement le niveau de logs (runtime) :
 
 ```{bash}
 #| echo: true
@@ -183,7 +227,7 @@ docker run --rm hello-java:env
 docker run --rm --env LOG_LEVEL=DEBUG hello-java:env
 ```
 
-comparez les résultats.
+3. Que peut-on faire si on ajoute dans le Dockerfile une instruction `ENV COMMIT=${GIT_COMMIT}` ?
 
 :::{.callout-tip collapse="true"}
 ## Solution Dockerfile
@@ -226,7 +270,7 @@ Construire l’image Docker
 ```{bash}
 #| echo: true
 #| output: true
-docker build --quiet \
+docker build \
   --file Dockerfile.multistage \
   -t hello-java:0.0.1-multi \
   .
@@ -253,7 +297,7 @@ docker run --rm -e NAME=Pierre hello-java:0.0.1-multi
 ```{bash}
 #| echo: true
 #| output: true
-docker image ls | grep hello-java
+docker image ls --filter "reference=hello-java*"
 ```
 
 :::{.callout-important title="Extensions (Bonus)"}

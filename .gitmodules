@@ -1,6 +1,7 @@
 [submodule "quarto-utils"]
 	path = quarto-utils
 	url = git@github.com:ebpro/quarto-utils.git
+	branch = develop
 [submodule "notebook-containers-intro-helloworld"]
 	path = notebook-containers-intro-helloworld
 	url = git@github.com:ebpro/notebook-containers-intro-helloworld.git

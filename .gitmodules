@@ -28,3 +28,6 @@
 [submodule "notebook-containers-intro-exercices-images"]
 	path = notebook-containers-intro-exercices-images
 	url = git@github.com:ebpro/notebook-containers-intro-exercices-images.git
+[submodule "notebook-containers-intro-rabbitmq"]
+	path = notebook-containers-intro-rabbitmq
+	url = git@github.com:ebpro/sample-containers-rabbitmq.git
